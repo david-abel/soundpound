@@ -1,0 +1,5 @@
+data/
+misc_python_scripts/
+*.pyc
+*.key
+*.mp4

@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import namespace
 import heapq
+import pickle
 from collections import defaultdict
 
 def apply_optical_flow_to_video(video_file=namespace.TEST_VIDEO_FILE,output_file=namespace.TEST_VIDEO_OPT_FLOW_FILE):
@@ -27,13 +28,13 @@ def apply_optical_flow_to_video(video_file=namespace.TEST_VIDEO_FILE,output_file
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-    out = cv2.VideoWriter(output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
+    out = cv2.VideoWriter(namespace.OUT_DIR + output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
 
     # Loop over each frame, apply optical flow, save.
-    _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub)
+    _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file)
 
 
-def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub):
+def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file):
     '''
     Args:
         video_cap(cv2.VideoCapture): an object for reading each frame from the video
@@ -63,6 +64,12 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
 
         # Apply optical flow and normalization
         flow = cv2.calcOpticalFlowFarneback(previous,cleaned_frame,0.5,3,15,3,5,1.2,0)
+
+        # If this frame contains no relevant keypoints, skip the frame
+        if np.count_nonzero(flow) == 0:
+            print "SKIPPING A FRAME"
+            continue
+
         bag_of_max_optical_flow = find_max_keypoints(flow)
         features.append(bag_of_max_optical_flow)
         mag, ang = cv2.cartToPolar(flow[...,0], flow[...,1])
@@ -75,6 +82,8 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
 
         # Set current frame to previous
         previous = cleaned_frame    
+
+    save_feature_dict_to_file(features, output_file)
 
     video_cap.release()
     out.release()
@@ -89,7 +98,7 @@ def find_max_keypoints(flow_frame):
         defaultdict(lambda: defaultdict(int)): A bag of words containing a 1 at the col,row for the max optical flow keypoitns
     '''
     # Store max optical flow keypoints per frame
-    bag_of_max_optical_flow = defaultdict(lambda: defaultdict(int)) # key is "col", then key is "row", then val is 0 or 1
+    bag_of_max_optical_flow = defaultdict(_int_dict) # key is "col", then key is "row", then val is 0 or 1
 
     # Get the N largest optical flow keypoints
     max_rows, max_cols = nlargest_indices(flow_frame,namespace.NUM_KEYPOINTS)
@@ -120,7 +129,7 @@ def save_feature_dict_to_file(features, filename=namespace.TEST_VIDEO_FEAT_FILE)
         features: a defaultdict containing the feature representation of an entire video
         filename (opt): the filename to save this feature dict to
     '''
-    with open(filename, 'wb') as handle:
+    with open(namespace.FEATURE_CACHE + filename + ".pickle", 'wb') as handle:
         pickle.dump(features, handle)
 
 def open_feature_dict_from_file(filename=namespace.TEST_VIDEO_FEAT_FILE):
@@ -129,9 +138,18 @@ def open_feature_dict_from_file(filename=namespace.TEST_VIDEO_FEAT_FILE):
         filename (opt): the filename to load features from
     '''
     with open(filename, 'rb') as handle:
-        b = pickle.load(handle)
+        data = pickle.load(handle)
 
-    return b
+    return data
+
+def _int_dict():
+    '''
+    Notes: Used in place of lambda : defaultdict(int) so that we can pickle large defaultdicts
+
+    Return:
+        defaultdict(int)
+    '''
+    return defaultdict(int)
 
 def main():
     if len(sys.argv) != 2:

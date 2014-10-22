@@ -1,7 +1,8 @@
 # Hyperparameters
 
 NUM_KEYPOINTS = 5 # per frame
-NUM_FRAMES_PER_SLICE = 5 # 
+NUM_FRAMES_PER_SLICE = 6 # number of frames per feature slice
+SLICE_DELTA = 3 # number of frames to advance between slices (should be less than NUM_FRAMES_PER_SLICE)
 
 # Video Specific Information
 

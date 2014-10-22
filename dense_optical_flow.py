@@ -31,7 +31,9 @@ def apply_optical_flow_to_video(video_file=namespace.TEST_VIDEO_FILE,output_file
     out = cv2.VideoWriter(namespace.OUT_DIR + output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
 
     # Loop over each frame, apply optical flow, save.
-    _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file)
+    features = _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file)
+
+    _slice_into_video_patches(features, output_file)
 
 
 def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file):
@@ -83,11 +85,22 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
         # Set current frame to previous
         previous = cleaned_frame    
 
-    save_feature_dict_to_file(features, output_file)
+    # save_feature_dict_to_file(features, output_file)
 
     video_cap.release()
     out.release()
     cv2.destroyAllWindows()
+
+    return features
+
+def _slice_into_video_patches(features, output_file):
+    features = range(10,56)
+    for i in range(0, len(features) - namespace.NUM_FRAMES_PER_SLICE, namespace.SLICE_DELTA):
+        feature_slice = [ features[i + j] for j in range(0,namespace.NUM_FRAMES_PER_SLICE)]
+        print feature_slice
+    quit()
+        # save_feature_dict_to_file(features, i + output_file)
+
 
 def find_max_keypoints(flow_frame):
     '''

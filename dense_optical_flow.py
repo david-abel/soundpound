@@ -1,12 +1,17 @@
+# Python modules
 import cv2
 import numpy as np
 import sys
-import namespace
 import heapq
 import pickle
 from collections import defaultdict
 
-def apply_optical_flow_to_video(video_file=namespace.TEST_VIDEO_FILE,output_file=namespace.TEST_VIDEO_OPT_FLOW_FILE):
+# Soundpound modules
+import utils
+import namespace
+from slice_features import SliceFeatures
+
+def apply_optical_flow_to_video(video_file, save_video=False, output_file=namespace.TEST_VIDEO_FEAT_FILE):
     '''
     Args:
         video_file(String) [opt]: points to a video file to apply optical flow
@@ -28,13 +33,16 @@ def apply_optical_flow_to_video(video_file=namespace.TEST_VIDEO_FILE,output_file
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
-    out = cv2.VideoWriter(namespace.OUT_DIR + output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
+    
+    # Only write to file if instructed by parameters
+    out = None
+    if save_video:
+        out = cv2.VideoWriter(namespace.OUT_DIR + output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
 
     # Loop over each frame, apply optical flow, save.
     features = _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file)
 
-    _slice_into_video_patches(features, output_file)
-
+    return features
 
 def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file):
     '''
@@ -45,6 +53,10 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
         previous(numpy.ndarray): previous frame of the video
         hsv(numpy.ndarray): normalization matrix
         background_sub(cv2.BackgroundSubtractorMOG): an object for removing background noise from each frame
+        output_file(str): a string pointing to the file to write
+
+    Returns:
+        features(list): contains all the features for each frame of the video (features[i] is the features at frame i)
     '''
 
     # Stores a data structure of max keypoints per frame for each frame
@@ -69,7 +81,7 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
 
         # If this frame contains no relevant keypoints, skip the frame
         if np.count_nonzero(flow) == 0:
-            print "SKIPPING A FRAME"
+            # SKIPPING FRAME: typically happens once per video?
             continue
 
         bag_of_max_optical_flow = find_max_keypoints(flow)
@@ -79,28 +91,42 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
         hsv[...,2] = cv2.normalize(mag,None,0,255,cv2.NORM_MINMAX)
         rgb = cv2.cvtColor(hsv,cv2.COLOR_HSV2BGR)
         
-        # Write the feature annotated frame
-        out.write(rgb)
+        if out != None:
+            # Write the feature annotated frame
+            out.write(rgb)
 
         # Set current frame to previous
         previous = cleaned_frame    
 
-    # save_feature_dict_to_file(features, output_file)
+    if out != None:
+        out.release()
 
     video_cap.release()
-    out.release()
     cv2.destroyAllWindows()
-
+    
     return features
 
-def _slice_into_video_patches(features, output_file):
-    features = range(10,56)
+def _slice_features_into_patches_and_save(features, output_file=namespace.TEST_VIDEO_FEAT_FILE, drummer=None, angle=None):
+    '''
+    Args:
+        features(list): contains the feature representation of a slice of video
+        output_file(str): name of the file to save
+    '''
+    prefix = str(drummer) + "." + str(angle) + "."
+    
+    # If we're processing the test video
+    if drummer == None:
+        prefix = "testVid."
+
     for i in range(0, len(features) - namespace.NUM_FRAMES_PER_SLICE, namespace.SLICE_DELTA):
         feature_slice = [ features[i + j] for j in range(0,namespace.NUM_FRAMES_PER_SLICE)]
-        print feature_slice
-    quit()
-        # save_feature_dict_to_file(features, i + output_file)
+        slice_feature_obj = SliceFeatures(drummer, angle, i, feature_slice)
+        utils.save_feature_obj_to_file(slice_feature_obj, prefix + str(i) + "_" + output_file)
 
+class Point():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 def find_max_keypoints(flow_frame):
     '''
@@ -108,61 +134,20 @@ def find_max_keypoints(flow_frame):
         flow_frame(numpy.ndarray): an array containing the optical flow data for the n-th frame of a video
 
     Returns:
-        defaultdict(lambda: defaultdict(int)): A bag of words containing a 1 at the col,row for the max optical flow keypoitns
+        defaultdict(int): A bag of words containing a 1 at the col,row for the max optical flow keypoitns
     '''
     # Store max optical flow keypoints per frame
-    bag_of_max_optical_flow = defaultdict(_int_dict) # key is "col", then key is "row", then val is 0 or 1
+    bag_of_max_optical_flow = defaultdict(int) # key is a Point, and the value is 0 or 1
 
     # Get the N largest optical flow keypoints
-    max_rows, max_cols = nlargest_indices(flow_frame,namespace.NUM_KEYPOINTS)
+    max_rows, max_cols = utils.nlargest_indices(flow_frame,namespace.NUM_KEYPOINTS)
 
     for x,y in zip(max_rows, max_cols):
-        # print x, y
-        bag_of_max_optical_flow[x][y] = 1
+        p = Point(x,y)
+        bag_of_max_optical_flow[p] = 1
 
     return bag_of_max_optical_flow
 
-def nlargest_indices(arr, n):
-    '''
-    Args:
-        arr(numpy array): an array containing comparable data
-        n(int): indicates the number of indices to return
-
-    Returns:
-        (A,B): where A and B contain the row and col respectively of the largest data points
-    '''
-    uniques = np.unique(arr)
-    threshold = uniques[-n]
-    a = np.where(arr >= threshold)
-    return a[0], a[1]
-
-def save_feature_dict_to_file(features, filename=namespace.TEST_VIDEO_FEAT_FILE):
-    '''
-    Args:
-        features: a defaultdict containing the feature representation of an entire video
-        filename (opt): the filename to save this feature dict to
-    '''
-    with open(namespace.FEATURE_CACHE + filename + ".pickle", 'wb') as handle:
-        pickle.dump(features, handle)
-
-def open_feature_dict_from_file(filename=namespace.TEST_VIDEO_FEAT_FILE):
-    '''
-    Args:
-        filename (opt): the filename to load features from
-    '''
-    with open(filename, 'rb') as handle:
-        data = pickle.load(handle)
-
-    return data
-
-def _int_dict():
-    '''
-    Notes: Used in place of lambda : defaultdict(int) so that we can pickle large defaultdicts
-
-    Return:
-        defaultdict(int)
-    '''
-    return defaultdict(int)
 
 def main():
     if len(sys.argv) != 2:
@@ -171,7 +156,9 @@ def main():
 
     video_file = sys.argv[1]
 
-    apply_optical_flow_to_video(video_file)
+    features = apply_optical_flow_to_video(video_file)
+
+    _slice_features_into_patches_and_save(features)
 
 
 if __name__ == "__main__":

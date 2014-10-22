@@ -1,6 +1,6 @@
 # Hyperparameters
 
-NUM_KEYPOINTS = 5 # per frame
+NUM_KEYPOINTS = 50 # per frame
 NUM_FRAMES_PER_SLICE = 6 # number of frames per feature slice
 SLICE_DELTA = 3 # number of frames to advance between slices (should be less than NUM_FRAMES_PER_SLICE)
 
@@ -8,7 +8,7 @@ SLICE_DELTA = 3 # number of frames to advance between slices (should be less tha
 
 OUT_DIR="output_videos/"
 
-FEATURE_CACHE="cached_representations/"
+TEST_DATA_FEAT_DIR="cached_representations/"
 
 TEST_VIDEO_FILE="output"
 TEST_VIDEO_OPT_FLOW_FILE="output_optical_flow"

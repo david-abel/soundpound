@@ -123,11 +123,6 @@ def _slice_features_into_patches_and_save(features, output_file=namespace.TEST_V
         slice_feature_obj = SliceFeatures(drummer, angle, i, feature_slice)
         utils.save_feature_obj_to_file(slice_feature_obj, prefix + str(i) + "_" + output_file)
 
-class Point():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 def find_max_keypoints(flow_frame):
     '''
     Args:
@@ -143,7 +138,7 @@ def find_max_keypoints(flow_frame):
     max_rows, max_cols = utils.nlargest_indices(flow_frame,namespace.NUM_KEYPOINTS)
 
     for x,y in zip(max_rows, max_cols):
-        p = Point(x,y)
+        p = utils.Point(x,y)
         bag_of_max_optical_flow[p] = 1
 
     return bag_of_max_optical_flow
@@ -156,7 +151,7 @@ def main():
 
     video_file = sys.argv[1]
 
-    features = apply_optical_flow_to_video(video_file)
+    features = apply_optical_flow_to_video(video_file, True)
 
     _slice_features_into_patches_and_save(features)
 

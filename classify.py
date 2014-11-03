@@ -5,9 +5,16 @@ from os.path import isfile, join
 from sklearn.neighbors import NearestNeighbors
 
 # Soundpound Modules
-import utils
+from utils import *
+# import utils
 import namespace
 
+
+def nearest_neighbor(src, others):
+    pass
+
+def distance(frames_src, frames_target):
+    pass
 
 def _load_test_set():
     '''
@@ -16,9 +23,7 @@ def _load_test_set():
     '''
     # Get all pickled files
     test_data_dir = namespace.TEST_DATA_FEAT_DIR
-    print test_data_dir
     all_pickle_files = [f for f in listdir(test_data_dir) if isfile(join(test_data_dir,f))]
-
 
     # Store each feature dict (represents set of namespace.NUM_FRAMES_PER_SLICE frames) with filename as the key
     all_feature_dicts = {}
@@ -26,10 +31,9 @@ def _load_test_set():
         if "DS_Store" in pickle_file_name:
             # Ignore silly Mac thing..
             continue
-        all_feature_dicts[pickle_file_name] = utils.open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
+        all_feature_dicts[pickle_file_name] = open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
 
     return all_feature_dicts
-
 
 
 def main():
@@ -39,7 +43,9 @@ def main():
 
     test_data = _load_test_set()
     
-    test_data.values()[0].print_features()
+    # for item in test_data.values():
+    #     print item
+    print test_data.values()[0].features
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,14 @@ from collections import defaultdict
 import namespace
 from slice_features import SliceFeatures
 
+class Point():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return "P(" + x + "," + y + ")"
+
 def nlargest_indices(arr, n):
     '''
     Args:

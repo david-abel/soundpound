@@ -1,8 +1,9 @@
 # Hyperparameters
 
-NUM_KEYPOINTS = 50 # per frame
+NUM_KEYPOINTS = 100 # per frame
 NUM_FRAMES_PER_SLICE = 6 # number of frames per feature slice
 SLICE_DELTA = 3 # number of frames to advance between slices (should be less than NUM_FRAMES_PER_SLICE)
+SPATIAL_PYRAMID_FRACTIONS = [2, 3, 4] # spatial pooling for each l/2 x w/2, l/3 x w/3, and l/4 x w/r region
 
 # Video Specific Information
 

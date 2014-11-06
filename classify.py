@@ -6,15 +6,52 @@ from sklearn.neighbors import NearestNeighbors
 
 # Soundpound Modules
 from utils import *
-# import utils
+import dense_optical_flow
 import namespace
 
 
-def nearest_neighbor(src, others):
-    pass
+def nearest_neighbor(src, neighbors):
+    '''
+    Args:
+        FeaturePatch: describes a patch from the source video
+        neighbors(list of list of FeaturePatch): contains the entire dataset broken into patches
+
+    Returns:
+        list of FeaturePatch: contains the best FeaturePatch match from the neighbors for the given FeaturePatch in the src
+    '''
+
+    best_distance = sys.float_info.max
+    best_patch = None
+
+    # Find the best match
+    for possible_match in neighbors:
+        cur_dist = distance(src, possible_match)
+
+        # Update best
+        if cur_dist < distance:
+            cur_dist = distance
+            best_patch = possible_match
+
+    return best_patch
 
 def distance(frames_src, frames_target):
-    pass
+    '''
+    Args:
+        frames_src(FeaturePatch): a single FeaturePatch from the source video
+        frames_target(FeaturePatch): a single FeaturePatch from a target video from the database
+
+    Returns:
+        int: the distance between the given FeaturePatch in optical flow space
+    '''
+
+    dist = 0
+    for feature in frames_src.features:
+        if feature not in frames_target.features:
+            dist += 1
+        else:
+            print "MATCH"
+    return dist
+
 
 def _load_test_set():
     '''
@@ -37,15 +74,35 @@ def _load_test_set():
 
 
 def main():
-    # if len(sys.argv) != 2:
-    #     print "Usage: python classify.py <video_file>\n"
-    #     quit()
+    if len(sys.argv) != 2:
+        print "Usage: python classify.py <video_file>\n"
+        quit()
 
+    # Break source video into patches
+    source_video = sys.argv[1]
+    source_video_features = dense_optical_flow.apply_optical_flow_to_video(source_video, True)
+    source_video_feature_patches = dense_optical_flow.slice_features_into_patches(source_video_features)
+
+    print "Finished preprocessing input video..."
+
+    # Load test data from pickled files into FeaturePatch objects
     test_data = _load_test_set()
-    
-    # for item in test_data.values():
-    #     print item
-    print test_data.values()[0].features
+
+
+    print "Finished loading dataset..."
+
+    best_matches = []
+
+    # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
+    for feature_patch in source_video_feature_patches:
+        best_matches.append(nearest_neighbor(feature_patch, test_data.values()))
+        print "Finished another patch"
+    print "Done."
+
+    print "Best matches:",
+    for match in best_matches:
+        print match,
+
 
 if __name__ == "__main__":
     main()

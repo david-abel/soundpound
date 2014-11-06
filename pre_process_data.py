@@ -45,7 +45,7 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
                 features = dense_optical_flow.apply_optical_flow_to_video(video_dir + video, output_file)
 
                 # Takes the features and splits it into patches, saves each patch w/ pickle.
-                dense_optical_flow._slice_features_into_patches_and_save(features, output_file, drummer_num, angle_num)
+                feature_patches = dense_optical_flow.slice_features_into_patches(features, output_file, drummer_num, angle_num, save=True)
 
                 # If we've processed enough files, quit.
                 num_videos += 1

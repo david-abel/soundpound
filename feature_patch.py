@@ -1,4 +1,4 @@
-class SliceFeatures:
+class FeaturePatch:
 
 	def __init__(self, drummer, angle, start_frame, features):
 		self.drummer = drummer

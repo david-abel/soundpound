@@ -9,7 +9,7 @@ from collections import defaultdict
 # Soundpound modules
 import utils
 import namespace
-from slice_features import SliceFeatures
+from feature_patch import FeaturePatch
 
 def apply_optical_flow_to_video(video_file, save_video=False, output_file=namespace.TEST_VIDEO_FEAT_FILE):
     '''
@@ -106,11 +106,17 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
     
     return features
 
-def _slice_features_into_patches_and_save(features, output_file=namespace.TEST_VIDEO_FEAT_FILE, drummer=None, angle=None):
+def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_FILE, drummer=None, angle=None, save=False):
     '''
     Args:
         features(list): contains the feature representation of a slice of video
-        output_file(str): name of the file to save
+        output_file(str) [opt]: name of the file to save
+        drummer(int) [opt]: the drummer number (1-3)
+        angle(int) [opt]: the angle number (1-2)
+        save(bool) [opt]: dictates whether or not you should save
+
+    Returns:
+        list: contains all the SliceFeature objects for this video (representing the temporal feature patches)
     '''
     prefix = str(drummer) + "." + str(angle) + "."
     
@@ -118,10 +124,31 @@ def _slice_features_into_patches_and_save(features, output_file=namespace.TEST_V
     if drummer == None:
         prefix = "testVid."
 
+    all_feature_patches = []
+
     for i in range(0, len(features) - namespace.NUM_FRAMES_PER_SLICE, namespace.SLICE_DELTA):
         feature_slice = [ features[i + j] for j in range(0,namespace.NUM_FRAMES_PER_SLICE)]
-        slice_feature_obj = SliceFeatures(drummer, angle, i, feature_slice)
-        utils.save_feature_obj_to_file(slice_feature_obj, prefix + str(i) + "_" + output_file)
+        feature_patch = FeaturePatch(drummer, angle, i, feature_slice)
+
+        all_feature_patches.append(feature_patch)
+    
+    if save:
+        _save_feature_patches(all_feature_patches, prefix + str(i) + "_" + output_file)
+
+    return all_feature_patches
+
+def _save_feature_patches(feature_patches, output_file=namespace.TEST_VIDEO_FEAT_FILE):
+    '''
+    Args:
+        feature_patches(list): contains all the SliceFeature objects to write out to a file
+        output_file(str) [opt]: the file to save the slice features to
+        drummer(int) [opt]: the drummer number (1-3)
+        angle(int) [opt]: the angle number (1-2)
+    '''
+
+    for feature_patch in feature_patches:
+        utils.save_feature_obj_to_file(feature_patch, output_file)
+
 
 def find_max_keypoints(flow_frame):
     '''
@@ -153,7 +180,9 @@ def main():
 
     features = apply_optical_flow_to_video(video_file, True)
 
-    _slice_features_into_patches_and_save(features)
+    feature_patches = slice_features_into_patches(features)
+
+    _save_feature_patches(feature_patches)
 
 
 if __name__ == "__main__":

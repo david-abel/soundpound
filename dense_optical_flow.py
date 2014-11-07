@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import sys
+import math
 import heapq
 import pickle
 from collections import defaultdict
@@ -116,7 +117,7 @@ def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_
         save(bool) [opt]: dictates whether or not you should save
 
     Returns:
-        list: contains all the SliceFeature objects for this video (representing the temporal feature patches)
+        list: contains all the FeaturePatches objects for this video (representing the temporal feature patches)
     '''
     prefix = str(drummer) + "." + str(angle) + "."
     
@@ -126,29 +127,24 @@ def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_
 
     all_feature_patches = []
 
-    for i in range(0, len(features) - namespace.NUM_FRAMES_PER_SLICE, namespace.SLICE_DELTA):
-        feature_slice = [ features[i + j] for j in range(0,namespace.NUM_FRAMES_PER_SLICE)]
-        feature_patch = FeaturePatch(drummer, angle, i, feature_slice)
+    for start_frame in range(0, len(features) - namespace.NUM_FRAMES_PER_SLICE, namespace.SLICE_DELTA):
+        
+        # Loop over namespace.NUM_FRAMES_PER_SLICE of frames and create a FeaturePatch object to store the feature
+        # representation of all those frames
+        patches_over_time = []
+        for delta in range(0, namespace.NUM_FRAMES_PER_SLICE):
+            feature_slice = features[start_frame + delta]
+            # feature_patch = FeaturePatch(drummer, angle, start_frame, feature_slice)
+            patches_over_time.append(feature_slice)
+        feature_patch = FeaturePatch(drummer, angle, start_frame, patches_over_time) # Now FeaturePatch stores a list "features", that itself contains features over time
 
-        all_feature_patches.append(feature_patch)
+        if save:
+            utils.save_feature_obj_to_file(feature_patch, prefix + str(start_frame) + "_" + output_file)
+
+        all_feature_patches.append(feature_patch) # Contains a list of Feature Patches.
     
-    if save:
-        _save_feature_patches(all_feature_patches, prefix + str(i) + "_" + output_file)
 
     return all_feature_patches
-
-def _save_feature_patches(feature_patches, output_file=namespace.TEST_VIDEO_FEAT_FILE):
-    '''
-    Args:
-        feature_patches(list): contains all the SliceFeature objects to write out to a file
-        output_file(str) [opt]: the file to save the slice features to
-        drummer(int) [opt]: the drummer number (1-3)
-        angle(int) [opt]: the angle number (1-2)
-    '''
-
-    for feature_patch in feature_patches:
-        utils.save_feature_obj_to_file(feature_patch, output_file)
-
 
 def find_max_keypoints(flow_frame):
     '''
@@ -164,9 +160,20 @@ def find_max_keypoints(flow_frame):
     # Get the N largest optical flow keypoints
     max_rows, max_cols = utils.nlargest_indices(flow_frame,namespace.NUM_KEYPOINTS)
 
+    # Full whatever
+    # max_rows = range(0,len(flow_frame))
+    # max_cols = range(0,len(flow_frame[0]))
+
     for x,y in zip(max_rows, max_cols):
         p = utils.Point(x,y)
-        bag_of_max_optical_flow[p] = 1
+        # NOTE: flow_frame[x][y] is a VECTOR of the dir of the keypoint from prev frame
+
+        # BY MAGNITUDE
+        magnitude = math.sqrt(flow_frame[x][y][0]**2 + flow_frame[x][y][1]**2)
+        bag_of_max_optical_flow[p] = magnitude
+
+        # BY BINARY
+        # bag_of_max_optical_flow[p] = 1
 
     return bag_of_max_optical_flow
 

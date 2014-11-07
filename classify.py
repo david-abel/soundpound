@@ -1,5 +1,6 @@
 # Python Modules
 import sys
+import math
 from os import listdir
 from os.path import isfile, join
 from sklearn.neighbors import NearestNeighbors
@@ -26,10 +27,10 @@ def nearest_neighbor(src, neighbors):
     # Find the best match
     for possible_match in neighbors:
         cur_dist = distance(src, possible_match)
-
         # Update best
-        if cur_dist < distance:
-            cur_dist = distance
+        if cur_dist < best_distance:
+            best_distance = cur_dist
+            print "UPDATING:", cur_dist
             best_patch = possible_match
 
     return best_patch
@@ -44,12 +45,11 @@ def distance(frames_src, frames_target):
         int: the distance between the given FeaturePatch in optical flow space
     '''
 
+    # print len(frames_src.features), len(frames_target.features)
+
     dist = 0
-    for feature in frames_src.features:
-        if feature not in frames_target.features:
-            dist += 1
-        else:
-            print "MATCH"
+    for i in range(len(frames_target.features)):
+        dist += (frames_src.features[i] - frames_target.features[i])**2
     return dist
 
 

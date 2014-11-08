@@ -18,7 +18,7 @@ def nearest_neighbor(src, neighbors):
         neighbors(list of list of FeaturePatch): contains the entire dataset broken into patches
 
     Returns:
-        list of FeaturePatch: contains the best FeaturePatch match from the neighbors for the given FeaturePatch in the src
+        FeaturePatch: contains the best FeaturePatch match from the neighbors for the given FeaturePatch in the src
     '''
 
     best_distance = sys.float_info.max
@@ -30,7 +30,6 @@ def nearest_neighbor(src, neighbors):
         # Update best
         if cur_dist < best_distance:
             best_distance = cur_dist
-            print "UPDATING:", cur_dist
             best_patch = possible_match
 
     return best_patch

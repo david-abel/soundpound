@@ -1,16 +1,16 @@
 class FeaturePatch:
 
-	def __init__(self, drummer, angle, start_frame, features):
-		self.drummer = drummer
-		self.angle = angle
+	def __init__(self, start_frame, num_frames, filename, features):
 		self.start_frame = start_frame
+		self.num_frames = num_frames
+		self.filename = filename
 		
 		# list of dicts, where each list represents a frame, and in each dict, 
 		# key is a Point, value is representation of optical flow
 		self.features = self._condense_features(features)
 
 	def __str__(self):
-		return "d:" + str(self.drummer) + "." + str(self.angle) + " f:" + str(self.start_frame)
+		return "FeaturePatch(" + self.filename + "." + str(self.start_frame) + "-" + str(self.start_frame + self.num_frames) + ")"
 
 	def _condense_features(self, features):
 	    '''

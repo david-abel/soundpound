@@ -134,9 +134,8 @@ def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_
         patches_over_time = []
         for delta in range(0, namespace.NUM_FRAMES_PER_SLICE):
             feature_slice = features[start_frame + delta]
-            # feature_patch = FeaturePatch(drummer, angle, start_frame, feature_slice)
             patches_over_time.append(feature_slice)
-        feature_patch = FeaturePatch(drummer, angle, start_frame, patches_over_time) # Now FeaturePatch stores a list "features", that itself contains features over time
+        feature_patch = FeaturePatch(start_frame, namespace.NUM_FRAMES_PER_SLICE, output_file, patches_over_time) # Now FeaturePatch stores a list "features", that itself contains features over time
 
         if save:
             utils.save_feature_obj_to_file(feature_patch, prefix + str(start_frame) + "_" + output_file)

@@ -35,7 +35,7 @@ def write_sound_to_file(filename, raw_sound_data, sample_rate=namespace.AUDIO_SA
 	'''
 	write(filename, sample_rate, raw_sound_data)
 
-def stitch_sound_files_together(sound_file, *args):
+def stitch_sound_files_together(*args):
 	'''
 	Args:
 		*args(list of audio data (list of ints)): contains the audio data to stitch together
@@ -43,12 +43,27 @@ def stitch_sound_files_together(sound_file, *args):
 	Returns:
 		(list): contains the raw_audio data of the provided audio all stitched together
 	'''
-	result = copy.deepcopy(sound_file)
+	result = copy.deepcopy(args[0])
 
-	for raw_audio in args:
+	for raw_audio in args[1:]:
 		result = np.concatenate([result, raw_audio])
 
 	return result
+
+def _get_sound_file_from_video_file(video_file, drummer):
+    '''
+    Args:
+        video_file(str): points to the video file of interest
+
+    Returns:
+        (str): the sound_file (relative from soundpound root directory) corresponding to the classified video_file
+    '''
+    audio_dir = namespace.DRUMMERS_AUDIO[drummer]
+
+    # Replace the mp4 ending with wav
+    sound_file = audio_dir + video_file.replace(".mp4",".wav")
+
+    return sound_file
 
 def main():
 

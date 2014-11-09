@@ -7,15 +7,18 @@ SPATIAL_PYRAMID_FRACTIONS = [2, 3, 4] # spatial pooling for each l/2 x w/2, l/3 
 
 # Video Specific Information
 
-OUT_DIR="output_videos/"
+DEBUG = True
 
-AUDIO_FILE_OUT="output_audio.wav"
+OUT_DIR = "output_videos/"
 
-TEST_DATA_FEAT_DIR="cached_representations/"
+VIDEO_FILE_OUT = "output_final.wav"
+AUDIO_FILE_OUT = "output_audio.wav"
 
-TEST_VIDEO_FILE="output"
-TEST_VIDEO_OPT_FLOW_FILE="output_optical_flow"
-TEST_VIDEO_FEAT_FILE="test_vid"
+TEST_DATA_FEAT_DIR = "cached_representations/"
+
+TEST_VIDEO_FILE = "output"
+TEST_VIDEO_OPT_FLOW_FILE = "output_optical_flow"
+TEST_VIDEO_FEAT_FILE = "test_vid"
 
 HEIGHT = 720
 WIDTH = 576
@@ -23,15 +26,16 @@ WIDTH = 576
 DRUMMER_ONE = "data/DVD-video/drummer_1/video/"
 DRUMMER_TWO = "data/DVD-video/drummer_2/video/"
 DRUMMER_THREE = "data/DVD-video/drummer_3/video/"
-DRUMMERS={1:DRUMMER_ONE,2:DRUMMER_TWO,3:DRUMMER_THREE}
+DRUMMERS = {1:DRUMMER_ONE,2:DRUMMER_TWO,3:DRUMMER_THREE}
 
 ANGLE_ONE = "angle_1/"
 ANGLE_TWO = "angle_2/"
-ANGLES={1:ANGLE_ONE,2:ANGLE_TWO}
+ANGLES = {1:ANGLE_ONE,2:ANGLE_TWO}
 
 D1_AUDIO_DIR = "data/ENST-drums-public/drummer_1/audio/snare/"
 D2_AUDIO_DIR = "data/ENST-drums-public/drummer_2/audio/snare/"
 D3_AUDIO_DIR = "data/ENST-drums-public/drummer_3/audio/snare/"
+DRUMMERS_AUDIO = {1:D1_AUDIO_DIR, 2:D2_AUDIO_DIR, 3:D3_AUDIO_DIR}
 
 VIDEO_FPS = 25 # Videos are 25 fps.
 

@@ -59,3 +59,11 @@ def _int_dict():
         defaultdict(int)
     '''
     return defaultdict(int)
+
+def dprint(debug_text):
+    '''
+    Args:
+        debug_text(str): string to be printed if debug mode is on
+    '''
+    if namespace.DEBUG:
+        print debug_text

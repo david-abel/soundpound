@@ -135,7 +135,7 @@ def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_
         for delta in range(0, namespace.NUM_FRAMES_PER_SLICE):
             feature_slice = features[start_frame + delta]
             patches_over_time.append(feature_slice)
-        feature_patch = FeaturePatch(start_frame, namespace.NUM_FRAMES_PER_SLICE, output_file, patches_over_time) # Now FeaturePatch stores a list "features", that itself contains features over time
+        feature_patch = FeaturePatch(start_frame, namespace.NUM_FRAMES_PER_SLICE, output_file, patches_over_time, drummer, angle) # Now FeaturePatch stores a list "features", that itself contains features over time
 
         if save:
             utils.save_feature_obj_to_file(feature_patch, prefix + str(start_frame) + "_" + output_file)
@@ -144,6 +144,19 @@ def slice_features_into_patches(features, output_file=namespace.TEST_VIDEO_FEAT_
     
 
     return all_feature_patches
+
+def get_feature_patches_from_video(filename):
+    '''
+    Args:
+        filename: the video file to open
+
+    Returns:
+        (list): contains the FeaturePatch objects representing the given video
+    '''
+    source_video_features = apply_optical_flow_to_video(filename, True)
+    source_video_feature_patches = slice_features_into_patches(source_video_features)
+
+    return source_video_feature_patches
 
 def find_max_keypoints(flow_frame):
     '''

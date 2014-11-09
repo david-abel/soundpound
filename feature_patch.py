@@ -1,9 +1,11 @@
 class FeaturePatch:
 
-	def __init__(self, start_frame, num_frames, filename, features):
+	def __init__(self, start_frame, num_frames, filename, features, drummer, angle):
 		self.start_frame = start_frame
 		self.num_frames = num_frames
 		self.filename = filename
+		self.drummer = drummer
+		self.angle = angle
 		
 		# list of dicts, where each list represents a frame, and in each dict, 
 		# key is a Point, value is representation of optical flow

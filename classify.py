@@ -11,7 +11,22 @@ import dense_optical_flow
 import namespace
 
 
-def nearest_neighbor(src, neighbors):
+def get_nearest_neighbors(input_feature_patches):
+    test_data = _load_test_set()
+
+    print "Finished loading dataset..."
+
+    best_matches = []
+
+    # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
+    for feature_patch in input_feature_patches:
+        best_matches.append(_nearest_neighbor(feature_patch, test_data.values()))
+        print "Finished another patch"
+    print "Done."
+
+    return best_matches
+
+def _nearest_neighbor(src, neighbors):
     '''
     Args:
         FeaturePatch: describes a patch from the source video
@@ -71,7 +86,6 @@ def _load_test_set():
 
     return all_feature_dicts
 
-
 def main():
     if len(sys.argv) != 2:
         print "Usage: python classify.py <video_file>\n"
@@ -79,14 +93,12 @@ def main():
 
     # Break source video into patches
     source_video = sys.argv[1]
-    source_video_features = dense_optical_flow.apply_optical_flow_to_video(source_video, True)
-    source_video_feature_patches = dense_optical_flow.slice_features_into_patches(source_video_features)
+    source_video_feature_patches = get_feature_patches_from_video(source_video)
 
     print "Finished preprocessing input video..."
 
     # Load test data from pickled files into FeaturePatch objects
     test_data = _load_test_set()
-
 
     print "Finished loading dataset..."
 
@@ -94,7 +106,7 @@ def main():
 
     # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
     for feature_patch in source_video_feature_patches:
-        best_matches.append(nearest_neighbor(feature_patch, test_data.values()))
+        best_matches.append(_nearest_neighbor(feature_patch, test_data.values()))
         print "Finished another patch"
     print "Done."
 

@@ -6,6 +6,7 @@ import copy
 
 # Soundpound modules
 import namespace
+import utils
 
 # NOTE: sample rate is 44,100, so each SECOND is 44,100 samples.
 
@@ -72,11 +73,15 @@ def main():
 	test_file = namespace.D1_AUDIO_DIR + "001_hits_snare-drum_sticks_x6.wav"
 
 	# Create sub chops
-	chopped_audio = chop_sound_file(test_file, 0,5)
-	chopped_audio_two = chop_sound_file(test_file, 5,5)
+	chopped_audio = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS) # Seconds time Video FPS
+	chopped_audio_two = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS)
+
+	utils.dprint((len(chopped_audio), len(chopped_audio_two)))
 
 	# Stitch them together
-	result = stitch_sound_files_together(chopped_audio, chopped_audio_two)
+	result = stitch_sound_files_together(chopped_audio_two, [])
+
+	utils.dprint(len(result))
 
 	# Write them out to a .wav
 	write_sound_to_file(namespace.AUDIO_FILE_OUT, result)

@@ -6,7 +6,7 @@ from os.path import isfile, join
 from sklearn.neighbors import NearestNeighbors
 
 # Soundpound Modules
-from utils import *
+import utils
 import dense_optical_flow
 import namespace
 
@@ -14,15 +14,15 @@ import namespace
 def get_nearest_neighbors(input_feature_patches):
     test_data = _load_test_set()
 
-    print "Finished loading dataset..."
+    utils.dprint("Finished loading dataset...")
 
     best_matches = []
 
     # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
     for feature_patch in input_feature_patches:
         best_matches.append(_nearest_neighbor(feature_patch, test_data.values()))
-        print "Finished another patch"
-    print "Done."
+        utils.dprint("Finished another patch")
+    utils.dprint("Done.")
 
     return best_matches
 
@@ -82,7 +82,7 @@ def _load_test_set():
         if "DS_Store" in pickle_file_name:
             # Ignore silly Mac thing..
             continue
-        all_feature_dicts[pickle_file_name] = open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
+        all_feature_dicts[pickle_file_name] = utils.open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
 
     return all_feature_dicts
 

@@ -20,16 +20,17 @@ def main():
     # Break source video into patches
     input_video = sys.argv[1]
 
-    utils.dprint("Featurizing input...")
-
+    
     # Featurize input and find best matches in the dataset
+    utils.dprint("Featurizing input...")
     input_feature_patches = dense_optical_flow.get_feature_patches_from_video(input_video)
+    utils.dprint("Finding best matches...")
     matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches)
 
-    utils.dprint("Finding matches...")
-
     # Get all matched sound files, chop them according to the match, then put them in order
-    final_sound = np.zeros(88)
+    utils.dprint("Processing media...")
+    final_sound = []
+    first_check = True
     for match in matched_feature_patches:
         # Get full sound file
         next_sound_file = audio_utils._get_sound_file_from_video_file(match.filename, match.drummer)
@@ -41,8 +42,11 @@ def main():
 
         # Get subset of audio from the matched FeaturePatch and stitch together
         next_sound_file_chopped = audio_utils.chop_sound_file(next_sound_file, match.start_frame, match.num_frames)
-        final_sound = audio_utils.stitch_sound_files_together(final_sound, next_sound_file_chopped)
-        # soundfiles_to_stitch.append(next_sound_file_chopped)
+        if first_check:
+            final_sound = audio_utils.stitch_sound_files_together(next_sound_file_chopped, final_sound)
+            first_check = False
+        else:
+            final_sound = audio_utils.stitch_sound_files_together(final_sound, next_sound_file_chopped)
 
     utils.dprint("Reticulating spleens... " + str(len(final_sound)))
 
@@ -54,8 +58,8 @@ def main():
     sp.call(stitch_command)
 
     # Open the file
-    # open_command = ["open", namespace.AUDIO_FILE_OUT]
-    # sp.call(open_command)
+    open_command = ["open", namespace.VIDEO_FILE_OUT]
+    sp.call(open_command)
 
 
 if __name__ == "__main__":

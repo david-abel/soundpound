@@ -5,7 +5,7 @@ from collections import defaultdict
 
 # Soundpound modules
 import namespace
-from slice_features import SliceFeatures
+from feature_patch import FeaturePatch
 
 class Point():
     def __init__(self, x, y):
@@ -29,14 +29,14 @@ def nlargest_indices(arr, n):
     a = np.where(arr >= threshold)
     return a[0], a[1]
 
-def save_feature_obj_to_file(slice_features, filename=namespace.TEST_VIDEO_FEAT_FILE):
+def save_feature_obj_to_file(feature_patches, filename=namespace.TEST_VIDEO_FEAT_FILE):
     '''
     Args:
-        features: a SliceFeatures object containing the feature representation of an entire video
+        features: a FeaturePatchs object containing the feature representation of an entire video
         filename (opt): the filename to save this feature dict to
     '''
     with open(namespace.TEST_DATA_FEAT_DIR + filename + ".pickle", 'wb') as handle:
-        pickle.dump(slice_features, handle)
+        pickle.dump(feature_patches, handle)
 
 def open_feature_obj_from_file(filename=namespace.TEST_VIDEO_FEAT_FILE):
     '''
@@ -44,7 +44,7 @@ def open_feature_obj_from_file(filename=namespace.TEST_VIDEO_FEAT_FILE):
         filename (opt): the filename to load features from
 
     Returns:
-        data(SliceFeatures): contains the relevant feature information (and drummer ID, angle, etc.).
+        data(FeaturePatchs): contains the relevant feature information (and drummer ID, angle, etc.).
     '''
     with open(filename, 'rb') as handle:
         data = pickle.load(handle)

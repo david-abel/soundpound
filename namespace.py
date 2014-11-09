@@ -11,7 +11,7 @@ DEBUG = True
 
 OUT_DIR = "output_videos/"
 
-VIDEO_FILE_OUT = "output_final.wav"
+VIDEO_FILE_OUT = "output_final.mp4"
 AUDIO_FILE_OUT = "output_audio.wav"
 
 TEST_DATA_FEAT_DIR = "cached_representations/"
@@ -40,3 +40,6 @@ DRUMMERS_AUDIO = {1:D1_AUDIO_DIR, 2:D2_AUDIO_DIR, 3:D3_AUDIO_DIR}
 VIDEO_FPS = 25 # Videos are 25 fps.
 
 AUDIO_SAMPLE_RATE = 44100
+
+START_DELIM="#"
+END_DELIM="$"

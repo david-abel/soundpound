@@ -9,7 +9,7 @@ import namespace
 
 # NOTE: sample rate is 44,100, so each SECOND is 44,100 samples.
 
-def chop_sound_file(sound_file, start_sec, num_secs):
+def chop_sound_file(sound_file, start_frame, num_frames):
 	'''
 	Args:
 		sound_file(str): points to the raw audio file to load
@@ -22,6 +22,8 @@ def chop_sound_file(sound_file, start_sec, num_secs):
 	# audio_in_seconds = _get_sound_file_in_seconds(sound_file)
 
 	sample_rate, audio = read(sound_file)
+	start_sec = start_frame / namespace.VIDEO_FPS
+	num_secs = num_frames / namespace.VIDEO_FPS
 
 	chopped_audio = audio[start_sec * sample_rate: (start_sec + num_secs) * sample_rate] # NOTE: make sure it doesn't overflow
 	return chopped_audio

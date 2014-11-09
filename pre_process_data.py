@@ -39,7 +39,7 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
                 print "starting video: " + video_dir + video
 
                 # Format the output file name 
-                output_file = "OUT_" + str(drummer_num) + "." + str(angle_num) + "_" + video
+                output_file = namespace.START_DELIM + "OUT_" + str(drummer_num) + "." + str(angle_num) + namespace.END_DELIM + video
 
                 # Apply optical flow and save feature representation
                 features = dense_optical_flow.apply_optical_flow_to_video(video_dir + video, output_file)

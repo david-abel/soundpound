@@ -27,3 +27,18 @@ class FeaturePatch:
 	    	summed_feature_patches.append(sum(time_slice.values()))
 
 	    return summed_feature_patches
+
+	def _avg_features(self, features):
+		avged_feature_patches = []
+	    for time_slice in features:
+	    	avged_feature_patches.append(float(sum(time_slice.values()) / len(time_slice.values())))
+
+	    return avged_feature_patches
+
+	def _max_features(self, features):
+		avged_feature_patches = []
+	    for time_slice in features:
+	    	avged_feature_patches.append(max(time_slice.values()))
+
+	    return avged_feature_patches
+

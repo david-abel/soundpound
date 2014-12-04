@@ -14,6 +14,11 @@ import namespace
 def get_nearest_neighbors(input_feature_patches):
     test_data = _load_test_set()
 
+    i = 0
+    for fp in test_data.values():
+        if type(fp) == list:
+            i += 1
+
     utils.dprint("Finished loading dataset...")
 
     best_matches = []
@@ -60,6 +65,9 @@ def distance(frames_src, frames_target):
     '''
 
     # print len(frames_src.features), len(frames_target.features)
+    if type(frames_target) == list:
+        utils.dprint("FOUND A LIST IN DISTANCE")
+        return sys.float_info.max
 
     dist = 0
     for i in range(len(frames_target.features)):

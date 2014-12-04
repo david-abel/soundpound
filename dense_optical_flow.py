@@ -201,7 +201,7 @@ def main():
 
     feature_patches = slice_features_into_patches(features)
 
-    _save_feature_patches(feature_patches)
+    utils.save_feature_obj_to_file(feature_patches)
 
 
 if __name__ == "__main__":

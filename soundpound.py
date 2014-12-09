@@ -12,15 +12,15 @@ import audio_utils
 import namespace
 import utils
 
-def main():
-    if len(sys.argv) != 2:
-        print "Usage: python classify.py <video_file>\n"
-        quit()
+def soundpound_pipeline(input_video, stitch_sound=True):
+    '''
+    Args:
+        input_video (str): filename of input video to run system on
+        stitch_sound (bool) [opt]: indicates if we should stitch the sound to the output video file
 
-    # Break source video into patches
-    input_video = sys.argv[1]
-
-    
+    Returns:
+        (list): the sound file resulting from running soundpound
+    '''
     # Featurize input and find best matches in the dataset
     utils.dprint("Featurizing input...")
     input_feature_patches = dense_optical_flow.get_feature_patches_from_video(input_video)
@@ -48,6 +48,13 @@ def main():
         else:
             final_sound = audio_utils.stitch_sound_files_together(final_sound, next_sound_file_chopped)
 
+    if stitch_sound:
+        _sound_helper(input_video, final_sound)
+
+    return final_sound
+
+def _sound_helper(input_video, final_sound):
+
     utils.dprint("Reticulating spleens... " + str(len(final_sound)))
 
     # Write to file (TO BE REPLACED BY SMASHING INTO VIDEO)
@@ -60,6 +67,17 @@ def main():
     # Open the file
     open_command = ["open", namespace.VIDEO_FILE_OUT]
     sp.call(open_command)
+
+def main():
+    if len(sys.argv) != 2:
+        print "Usage: python classify.py <video_file>\n"
+        quit()
+
+    # Break source video into patches
+    input_video = sys.argv[1]
+
+    soundpound_pipeline(input_video)
+    
 
 
 if __name__ == "__main__":

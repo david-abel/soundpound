@@ -101,7 +101,7 @@ def main():
 
     # Break source video into patches
     source_video = sys.argv[1]
-    source_video_feature_patches = get_feature_patches_from_video(source_video)
+    source_video_feature_patches = dense_optical_flow.get_feature_patches_from_video(source_video)
 
     print "Finished preprocessing input video..."
 

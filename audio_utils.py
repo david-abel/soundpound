@@ -68,6 +68,16 @@ def _get_sound_file_from_video_file(video_file, drummer):
 
     return sound_file
 
+def audio_distance(sound_file_a, sound_file_b):
+	'''
+	Args:
+		sound_file_a (list): wav file from source video
+		sound_file_b (list): wav file from target video
+
+	Returns:
+		(int): indicates how dissimilar the two sound files are
+	'''
+
 def main():
 
 	test_file = namespace.D1_AUDIO_DIR + "001_hits_snare-drum_sticks_x6.wav"

@@ -20,6 +20,11 @@ TEST_VIDEO_FILE = "output"
 TEST_VIDEO_OPT_FLOW_FILE = "output_optical_flow"
 TEST_VIDEO_FEAT_FILE = "test_vid"
 
+EVAL_VID_A = "evaluation/001_hits_snare-drum_sticks_x6.mp4"
+EVAL_AUDIO_A = "evaluation/001_hits_snare-drum_sticks_x6.wav"
+EVAL_VID_B = "evaluation/021_hits_snare-drum_mallets_x5.mp4"
+EVAL_AUDIO_A = "evaluation/021_hits_snare-drum_mallets_x5.wav"
+
 HEIGHT = 720
 WIDTH = 576
 

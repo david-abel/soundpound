@@ -13,7 +13,7 @@ class Point():
         self.y = y
 
     def __str__(self):
-        return "P(" + x + "," + y + ")"
+        return "P(" + self.x + "," + self.y + ")"
 
 def nlargest_indices(arr, n):
     '''

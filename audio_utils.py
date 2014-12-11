@@ -23,8 +23,17 @@ def chop_sound_file(sound_file, start_frame, num_frames):
 	# audio_in_seconds = _get_sound_file_in_seconds(sound_file)
 
 	sample_rate, audio = read(sound_file)
+
+	print "SAMPLE RATE:", sample_rate
+	print "AUDIO", audio
+
 	start_sec = start_frame / namespace.VIDEO_FPS
+
+	print "START:", start_sec
+
 	num_secs = num_frames / namespace.VIDEO_FPS
+
+	print "NUM_FRAMES", num_frames
 
 	chopped_audio = audio[start_sec * sample_rate: (start_sec + num_secs) * sample_rate] # NOTE: make sure it doesn't overflow
 	return chopped_audio
@@ -68,33 +77,53 @@ def _get_sound_file_from_video_file(video_file, drummer):
 
     return sound_file
 
-def audio_distance(sound_file_a, sound_file_b):
+def audio_mean_squared_error(sound_file_a, sound_file_b):
 	'''
 	Args:
 		sound_file_a (list): wav file from source video
 		sound_file_b (list): wav file from target video
 
 	Returns:
-		(int): indicates how dissimilar the two sound files are
+		(int): Mean square error, indicating how dissimilar the two sound files are
 	'''
+
+	distance = 0
+
+
+	sound_file_length = min(len(sound_file_a),len(sound_file_b))
+
+	# Loop over the audio files and compute distance
+	for i in xrange(sound_file_length):
+		# print (sound_file_a[i] - sound_file_b[i])**2
+		distance += (sound_file_a[i] - sound_file_b[i])**2
+
+	# Compute MSE
+	mean_squared_error = float(distance) / sound_file_length
+
+	return mean_squared_error
+
 
 def main():
 
 	test_file = namespace.D1_AUDIO_DIR + "001_hits_snare-drum_sticks_x6.wav"
 
-	# Create sub chops
-	chopped_audio = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS) # Seconds time Video FPS
-	chopped_audio_two = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS)
+	sample_rate, audio = read(test_file)
 
-	utils.dprint((len(chopped_audio), len(chopped_audio_two)))
+	print audio
 
-	# Stitch them together
-	result = stitch_sound_files_together(chopped_audio_two, [])
+	# # Create sub chops
+	# chopped_audio = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS) # Seconds time Video FPS
+	# chopped_audio_two = chop_sound_file(test_file, 0,2*namespace.VIDEO_FPS)
 
-	utils.dprint(len(result))
+	# utils.dprint((len(chopped_audio), len(chopped_audio_two)))
 
-	# Write them out to a .wav
-	write_sound_to_file(namespace.AUDIO_FILE_OUT, result)
+	# # Stitch them together
+	# result = stitch_sound_files_together(chopped_audio_two, [])
+
+	# utils.dprint(len(result))
+
+	# # Write them out to a .wav
+	# write_sound_to_file(namespace.AUDIO_FILE_OUT, result)
 
 
 if __name__ == "__main__":

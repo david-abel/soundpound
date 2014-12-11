@@ -24,14 +24,25 @@ def soundpound_pipeline(input_video, stitch_sound=True):
     # Featurize input and find best matches in the dataset
     utils.dprint("Featurizing input...")
     input_feature_patches = dense_optical_flow.get_feature_patches_from_video(input_video)
+
     utils.dprint("Finding best matches...")
     matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches)
+
+    if len(matched_feature_patches) == 0:
+        print "No matches found. Quitting."
+        quit()
 
     # Get all matched sound files, chop them according to the match, then put them in order
     utils.dprint("Processing media...")
     final_sound = []
     first_check = True
     for match in matched_feature_patches:
+
+        # Make sure we've processed some DATA
+        if match == None:
+            print "Make sure data has been preprocessed (is the dir cached_representations/ empty? Try running pre_process_data.py"
+            quit()
+
         # Get full sound file
         next_sound_file = audio_utils._get_sound_file_from_video_file(match.filename, match.drummer)
 
@@ -40,8 +51,11 @@ def soundpound_pipeline(input_video, stitch_sound=True):
         preamble_end = next_sound_file.index(namespace.END_DELIM)
         next_sound_file = next_sound_file[:preamble_start] + next_sound_file[preamble_end + 1:]
 
+        print "FILE NAME", next_sound_file
+
         # Get subset of audio from the matched FeaturePatch and stitch together
         next_sound_file_chopped = audio_utils.chop_sound_file(next_sound_file, match.start_frame, match.num_frames)
+        
         if first_check:
             final_sound = audio_utils.stitch_sound_files_together(next_sound_file_chopped, final_sound)
             first_check = False

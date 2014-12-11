@@ -71,7 +71,15 @@ def distance(frames_src, frames_target):
 
     dist = 0
     for i in range(len(frames_target.features)):
-        dist += (frames_src.features[i] - frames_target.features[i])**2
+
+        if type(frames_target.features[i]) == list:
+            # If we stored features as Vector for optical flow
+            mag_src = math.sqrt((frames_src.features[i][0] + frames_src.features[i][1])**2)
+            mag_target = math.sqrt((frames_target.features[i][0] + frames_target.features[i][1])**2)
+            dist += abs((mag_src - mag_target))
+        else:
+            # If we stored features as magnitudes of optical flow
+            dist += abs((frames_src.features[i] - frames_target.features[i]))
     return dist
 
 

@@ -1,3 +1,10 @@
+# Python modules
+import math
+import numpy
+
+# Soundpound modules
+import namespace
+
 class FeaturePatch:
 
     def __init__(self, start_frame, num_frames, filename, features, drummer, angle):
@@ -8,7 +15,7 @@ class FeaturePatch:
         self.angle = angle
         
         # list of dicts, where each list represents a frame, and in each dict, 
-        # key is a Point, value is representation of optical flow
+        # key is a Point, value is SOME representation of optical flow
         self.features = self._condense_features(features)
 
     def __str__(self):
@@ -19,8 +26,14 @@ class FeaturePatch:
         Notes:
             Turns the feature for each frame from all keypoints to a consolidated representation (average, max, sum, etc)
         '''
-        # return self._sum_features(features)
-        return self._avg_features(features)
+
+        if namespace.FEATURES_ARE_VECTORS:
+            # VECTORS
+            return self._max_amplitude_direction(features)
+        else:
+            # MAGNITUDES
+            # return self._sum_features(features)
+            return self._avg_features(features)
 
     def _sum_features(self, features):
         summed_feature_patches = []
@@ -43,3 +56,20 @@ class FeaturePatch:
 
         return max_feature_patches
 
+    def _max_amplitude_direction(self, features):
+        # NOTE: assumes features are VECTORS, not AMPLITUDES
+        max_dirs = []
+        
+        for time_slice in features:
+            max_amp = 0
+            max_amp_theta = 0 # Angle from 0 (like unit circle)
+
+            for opt_flow in time_slice.values():
+                magnitude = math.sqrt((opt_flow[0] + opt_flow[1])**2)
+                if magnitude > max_amp:
+                    max_amp = magnitude
+                    max_amp_theta = math.atan2(opt_flow[1], opt_flow[0])
+                    print max_amp_theta
+            max_dirs.append(max_amp_theta)
+
+        return max_dirs

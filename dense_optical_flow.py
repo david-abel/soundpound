@@ -82,7 +82,7 @@ def _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_su
 
         # If this frame contains no relevant keypoints, skip the frame
         if np.count_nonzero(flow) == 0:
-            # SKIPPING FRAME: typically happens once per video?
+            # SKIPPING FRAME: happens once per video
             continue
 
         bag_of_max_optical_flow = find_max_keypoints(flow)
@@ -164,7 +164,7 @@ def find_max_keypoints(flow_frame):
         flow_frame(numpy.ndarray): an array containing the optical flow data for the n-th frame of a video
 
     Returns:
-        defaultdict(int): A bag of words containing a 1 at the col,row for the max optical flow keypoitns
+        defaultdict(int): A bag of words containing the magnitude at the col,row for the max optical flow keypoitns
     '''
     # Store max optical flow keypoints per frame
     bag_of_max_optical_flow = defaultdict(int) # key is a Point, and the value is 0 or 1
@@ -178,11 +178,15 @@ def find_max_keypoints(flow_frame):
 
     for x,y in zip(max_rows, max_cols):
         p = utils.Point(x,y)
-        # NOTE: flow_frame[x][y] is a VECTOR of the dir of the keypoint from prev frame
+        # NOTE: flow_frame[x][y] is a VECTOR or MAGNITUDE (depends on namespace.FEATURES_ARE_VECTORS) of the dir of the keypoint from prev frame
 
-        # BY MAGNITUDE
-        magnitude = math.sqrt(flow_frame[x][y][0]**2 + flow_frame[x][y][1]**2)
-        bag_of_max_optical_flow[p] = magnitude
+        if namespace.FEATURES_ARE_VECTORS:
+            # VECTOR features
+            bag_of_max_optical_flow[p] = flow_frame[x][y]
+        else:
+            # MAGNITUDE features
+            magnitude = math.sqrt(flow_frame[x][y][0]**2 + flow_frame[x][y][1]**2)
+            bag_of_max_optical_flow[p] = magnitude
 
         # BY BINARY
         # bag_of_max_optical_flow[p] = 1

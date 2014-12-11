@@ -1,9 +1,8 @@
 # Hyperparameters
 
 NUM_KEYPOINTS = 100 # per frame
-NUM_FRAMES_PER_SLICE = 25 # number of frames per feature slice | 25 = each slice is 1 second of video.
-SLICE_DELTA = 5 # number of frames to advance between slices (should be less than NUM_FRAMES_PER_SLICE)
-SPATIAL_PYRAMID_FRACTIONS = [2, 3, 4] # spatial pooling for each l/2 x w/2, l/3 x w/3, and l/4 x w/r region
+NUM_FRAMES_PER_SLICE = 25 # number of frames to advance per feature slice (24 means each slice will be 25 total) | 25 = each slice is 1 second of video.
+SLICE_DELTA = 25 # number of frames to advance between slices
 
 # Video Specific Information
 
@@ -22,8 +21,8 @@ TEST_VIDEO_FEAT_FILE = "test_vid"
 
 EVAL_VID_A = "evaluation/001_hits_snare-drum_sticks_x6.mp4"
 EVAL_AUDIO_A = "evaluation/001_hits_snare-drum_sticks_x6.wav"
-EVAL_VID_B = "evaluation/021_hits_snare-drum_mallets_x5.mp4"
-EVAL_AUDIO_A = "evaluation/021_hits_snare-drum_mallets_x5.wav"
+EVAL_VID_B = "evaluation/010_hits_crash-cymbal_sticks_x5.mp4"
+EVAL_AUDIO_A = "evaluation/010_hits_crash-cymbal_sticks_x5.wav"
 
 HEIGHT = 720
 WIDTH = 576
@@ -48,3 +47,5 @@ AUDIO_SAMPLE_RATE = 44100
 
 START_DELIM="#"
 END_DELIM="$"
+
+FEATURES_ARE_VECTORS = False # Features are either Vectors or their Magnitudes

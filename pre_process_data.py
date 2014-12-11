@@ -52,12 +52,11 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
                 if num_videos == n:
                     break
 
-
             angle_num += 1
         drummer_num += 1
 
 def main():
-    process_n_drummer_videos(3, True)   
+    process_n_drummer_videos(1, True)   
 
 
 if __name__ == "__main__":

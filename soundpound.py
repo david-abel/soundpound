@@ -25,12 +25,15 @@ def soundpound_pipeline(input_video, stitch_sound=True):
     utils.dprint("Featurizing input...")
     input_feature_patches = dense_optical_flow.get_feature_patches_from_video(input_video)
 
+    print "NUM INPUT FEAT PATCH", len(input_feature_patches)
+
     utils.dprint("Finding best matches...")
     matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches)
 
     if len(matched_feature_patches) == 0:
         print "No matches found. Quitting."
         quit()
+
 
     # Get all matched sound files, chop them according to the match, then put them in order
     utils.dprint("Processing media...")
@@ -51,8 +54,6 @@ def soundpound_pipeline(input_video, stitch_sound=True):
         preamble_end = next_sound_file.index(namespace.END_DELIM)
         next_sound_file = next_sound_file[:preamble_start] + next_sound_file[preamble_end + 1:]
 
-        print "FILE NAME", next_sound_file
-
         # Get subset of audio from the matched FeaturePatch and stitch together
         next_sound_file_chopped = audio_utils.chop_sound_file(next_sound_file, match.start_frame, match.num_frames)
         
@@ -71,7 +72,7 @@ def _sound_helper(input_video, final_sound):
 
     utils.dprint("Reticulating spleens... " + str(len(final_sound)))
 
-    # Write to file (TO BE REPLACED BY SMASHING INTO VIDEO)
+    # Write to file
     audio_utils.write_sound_to_file(namespace.AUDIO_FILE_OUT, final_sound)
 
     # Call the command to add the stitched audio to the video

@@ -31,11 +31,11 @@ def chop_sound_file(sound_file, start_frame, num_frames):
 
 	print "START:", start_sec
 
-	num_secs = num_frames / namespace.VIDEO_FPS
+	num_secs = float(num_frames) / namespace.VIDEO_FPS
 
 	print "NUM_FRAMES", num_frames
 
-	chopped_audio = audio[start_sec * sample_rate: (start_sec + num_secs) * sample_rate] # NOTE: make sure it doesn't overflow
+	chopped_audio = audio[int(start_sec * sample_rate): int((start_sec + num_secs) * sample_rate)] # NOTE: make sure it doesn't overflow
 	return chopped_audio
   
 def write_sound_to_file(filename, raw_sound_data, sample_rate=namespace.AUDIO_SAMPLE_RATE):

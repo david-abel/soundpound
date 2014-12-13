@@ -35,7 +35,9 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
 
             # Loop over the files, only process n of them
             for video in video_files:
-                
+                # Account for dumbness
+                if "DS_Store" in video:
+                    continue
                 print "starting video: " + video_dir + video
 
                 # Format the output file name 
@@ -56,7 +58,7 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
         drummer_num += 1
 
 def main():
-    process_n_drummer_videos(1, True)   
+    process_n_drummer_videos(random_sample=True)   
 
 
 if __name__ == "__main__":

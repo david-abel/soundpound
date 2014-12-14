@@ -1,6 +1,7 @@
 # Python Modules
 import sys
 import math
+import random
 from os import listdir
 from os.path import isfile, join
 from sklearn.neighbors import NearestNeighbors
@@ -11,27 +12,30 @@ import dense_optical_flow
 import namespace
 
 
-def get_nearest_neighbors(input_feature_patches):
+def get_nearest_neighbors(input_feature_patches, filename=""):
     test_data = _load_test_set()
-
-    i = 0
-    for fp in test_data.values():
-        if type(fp) == list:
-            i += 1
 
     utils.dprint("Finished loading dataset...")
 
     best_matches = []
 
+    # Grab the relevant file info to check against
+    filename_key = filename.split('/')[-1]
+
     # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
     for feature_patch in input_feature_patches:
-        best_matches.append(_nearest_neighbor(feature_patch, test_data.values()))
-        utils.dprint("Finished another patch")
+
+        if namespace.RANDOM_SELECTION:
+            # If we're randomly selecting
+            best_matches.append(random.choice(test_data.values()))
+        else:    
+            best_matches.append(_nearest_neighbor(feature_patch, test_data.values(), filename_key))
+            utils.dprint("Finished another patch")
     utils.dprint("Done.")
 
     return best_matches
 
-def _nearest_neighbor(src, neighbors):
+def _nearest_neighbor(src, neighbors, filename_key=""):
     '''
     Args:
         FeaturePatch: describes a patch from the source video
@@ -46,7 +50,14 @@ def _nearest_neighbor(src, neighbors):
 
     # Find the best match
     for possible_match in neighbors:
+
+        if filename_key in possible_match.filename:
+            # SAME FILE so ignore it
+            print "Ignoring a file!"
+            continue
+
         cur_dist = distance(src, possible_match)
+
         # Update best
         if cur_dist < best_distance:
             best_distance = cur_dist
@@ -72,8 +83,14 @@ def distance(frames_src, frames_target):
     dist = 0
     for i in range(len(frames_target.features)):
 
-        if type(frames_target.features[i]) == list:
+        if namespace.FEATURES_ARE_VECTORS:
+            if type(frames_src.features[i]) != list or type(frames_target.features[i]):
+                utils.dprint("Odd feature")
+                continue
             # If we stored features as Vector for optical flow
+            print "SOURCE:", frames_src.features[i]
+            print "TARGET:", frames_target.features[i]
+
             mag_src = math.sqrt((frames_src.features[i][0] + frames_src.features[i][1])**2)
             mag_target = math.sqrt((frames_target.features[i][0] + frames_target.features[i][1])**2)
             dist += abs((mag_src - mag_target))

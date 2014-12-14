@@ -25,7 +25,13 @@ def apply_optical_flow_to_video(video_file, save_video=False, output_file=namesp
 
     # Setup misc. objects
     ret, first_frame = video_cap.read()
-    previous = cv2.cvtColor(first_frame,cv2.COLOR_BGR2GRAY)
+
+    # Make sure video exists
+    try:
+        previous = cv2.cvtColor(first_frame,cv2.COLOR_BGR2GRAY)
+    except:
+        print "\nERROR: Test video \'" + video_file + "\' doesn't exist"
+        quit()
     hsv = np.zeros_like(first_frame)
     hsv[...,1] = 255
 
@@ -34,12 +40,12 @@ def apply_optical_flow_to_video(video_file, save_video=False, output_file=namesp
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
+    # fourcc = cv2.cv.CV_FOURCC('A', 'A', 'C')
     
     # Only write to file if instructed by parameters
     out = None
     if save_video:
         out = cv2.VideoWriter(namespace.OUT_DIR + output_file,fourcc, 20.0, (namespace.HEIGHT,namespace.WIDTH))
-
     # Loop over each frame, apply optical flow, save.
     features = _optical_flow_main_loop(video_cap, fourcc, out, previous, hsv, background_sub, output_file)
 

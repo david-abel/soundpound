@@ -4,6 +4,7 @@
 import sys
 import subprocess as sp
 import numpy as np
+import argparse
 
 # Soundpound Modules
 import classify
@@ -25,10 +26,9 @@ def soundpound_pipeline(input_video, stitch_sound=True):
     utils.dprint("Featurizing input...")
     input_feature_patches = dense_optical_flow.get_feature_patches_from_video(input_video)
 
-    print "NUM INPUT FEAT PATCH", len(input_feature_patches)
-
+    # Find nearest neighbors
     utils.dprint("Finding best matches...")
-    matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches)
+    matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches, input_video)
 
     if len(matched_feature_patches) == 0:
         print "No matches found. Quitting."
@@ -84,13 +84,33 @@ def _sound_helper(input_video, final_sound):
     sp.call(open_command)
 
 def main():
-    if len(sys.argv) != 2:
-        print "Usage: python classify.py <video_file>\n"
-        quit()
+    # Get video file
+    parser = argparse.ArgumentParser(description='Specify a particular file for Soundpounding.')
+    parser.add_argument("-j", "--jim", help="use Jim Harbaugh video",
+                    action="store_true")
+    parser.add_argument("-s", "--steve", help="use Jim Harbaugh video",
+                    action="store_true")
+    args = parser.parse_args()
 
-    # Break source video into patches
-    input_video = sys.argv[1]
+    if args.jim:
+        # HARBAUGH
+        # Adjust camera params (TODO: do this automatically)
+        namespace.HEIGHT = 640
+        namespace.WIDTH = 360
+        input_video = namespace.EVAL_HARBAUGH
+    elif args.steve:
+        # BALLMER
 
+        # Adjust camera params
+        namespace.HEIGHT = 320
+        namespace.WIDTH = 240
+        namespace.VIDEO_FPS = 30
+        input_video = namespace.EVAL_BALLMER
+    else:
+        # Regular output file
+        input_video = namespace.TEST_VIDEO_FILE
+
+    # Run full pipeline
     soundpound_pipeline(input_video)
     
 

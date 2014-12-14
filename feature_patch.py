@@ -1,6 +1,7 @@
 # Python modules
 import math
 import numpy
+import random
 
 # Soundpound modules
 import namespace
@@ -27,13 +28,19 @@ class FeaturePatch:
             Turns the feature for each frame from all keypoints to a consolidated representation (average, max, sum, etc)
         '''
 
-        if namespace.FEATURES_ARE_VECTORS:
-            # VECTORS
-            return self._max_amplitude_direction(features)
+        if namespace.RANDOM_SELECTION: 
+            # RANDOM
+            return [0 for i in range(len(features))]
+        elif namespace.FEATURES_ARE_VECTORS:
+            # VECTOR ANGLES
+            # return self._max_amplitude_direction(features)
+
+            # FULL VECTORS
+            return self._opt_flow_vector(features)
         else:
             # MAGNITUDES
-            # return self._sum_features(features)
-            return self._avg_features(features)
+            return self._sum_features(features)
+            # return self._avg_features(features)
 
     def _sum_features(self, features):
         summed_feature_patches = []
@@ -52,9 +59,25 @@ class FeaturePatch:
     def _max_features(self, features):
         max_feature_patches = []
         for time_slice in features:
+            print time_slice.values()
+            quit()
             max_feature_patches.append(max(time_slice.values()))
 
         return max_feature_patches
+
+    def _opt_flow_vector(self, features):
+        vectors = []
+
+        for time_slice in features:
+            max_vector = (0,0)
+            max_amp = 0
+            for opt_flow in time_slice.values():
+                magnitude = math.sqrt((opt_flow[0] + opt_flow[1])**2)
+                if magnitude > max_amp:
+                    max_vector = opt_flow
+                    max_amp = magnitude
+            vectors.append(max_vector)
+        return vectors
 
     def _max_amplitude_direction(self, features):
         # NOTE: assumes features are VECTORS, not AMPLITUDES
@@ -69,7 +92,20 @@ class FeaturePatch:
                 if magnitude > max_amp:
                     max_amp = magnitude
                     max_amp_theta = math.atan2(opt_flow[1], opt_flow[0])
-                    print max_amp_theta
             max_dirs.append(max_amp_theta)
 
         return max_dirs
+    
+    def _weighted_avg_direction(self, features):
+        # NOTE: assumes features are VECTORS, not AMPLITUDES
+        max_dirs = []
+        
+        for time_slice in features:
+            weighted_sum_dir = 0
+            for opt_flow in time_slice.values():
+                magnitude = math.sqrt((opt_flow[0] + opt_flow[1])**2)
+                weighted_sum_dir += magnitude*math.atan2(opt_flow[1], opt_flow[0])
+            max_dirs.append(float(weighted_sum_dir) / len(time_slice.values()))
+
+        return max_dirs
+

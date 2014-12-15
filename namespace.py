@@ -14,7 +14,7 @@ OUT_DIR = "output_videos/"
 VIDEO_FILE_OUT = "output_final.mp4"
 AUDIO_FILE_OUT = "output_audio.wav"
 
-TEST_DATA_FEAT_DIR = "cached_representations/full_data_sum_feat/"
+TEST_DATA_FEAT_DIR = "cached_representations/subsets/weighted_avg_dir/"
 
 TEST_VIDEO_FILE = "output"
 TEST_VIDEO_OPT_FLOW_FILE = "output_optical_flow"
@@ -56,6 +56,6 @@ START_DELIM="#"
 END_DELIM="$"
 
 # -- FEATURE + MISC. INFO --
-FEATURES_ARE_VECTORS = False # Features are either Vectors or their Magnitudes
+FEATURES_ARE_VECTORS = True # Features are either Vectors or their Magnitudes
 RANDOM_SELECTION = False
 

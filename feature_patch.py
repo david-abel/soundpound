@@ -36,11 +36,11 @@ class FeaturePatch:
             # return self._max_amplitude_direction(features)
 
             # FULL VECTORS
-            return self._opt_flow_vector(features)
+            return self._weighted_avg_direction(features)
         else:
             # MAGNITUDES
-            return self._sum_features(features)
-            # return self._avg_features(features)
+            # return self._weighted_avg_direction(features)
+            return self._avg_features(features)
 
     def _sum_features(self, features):
         summed_feature_patches = []

@@ -58,7 +58,7 @@ def process_n_drummer_videos(n=sys.maxint, random_sample=False):
         drummer_num += 1
 
 def main():
-    process_n_drummer_videos(random_sample=False)   
+    process_n_drummer_videos(n=3, random_sample=False)   
 
 
 if __name__ == "__main__":

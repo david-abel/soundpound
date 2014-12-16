@@ -86,7 +86,6 @@ def mean_squared_error(sound_file_a, sound_file_b):
 
     # Loop over the audio files and compute distance
     for i in xrange(sound_file_length):
-        # print (sound_file_a[i] - sound_file_b[i])**2
         distance += (sound_file_a[i] - sound_file_b[i])**2
 
     # Compute MSE
@@ -105,28 +104,59 @@ def total_temporal_error(sound_file_a, sound_file_b):
     '''
     return abs(sum(sound_file_a) - sum(sound_file_b))
 
-def mean_segment_temporal_error(sound_file_a, sound_file_b):
+def mean_temporal_error(sound_file_a, sound_file_b):
     '''
     Args:
         sound_file_a (list): wav file from source video
         sound_file_b (list): wav file from target video
 
     Returns:
-        (float): Segment temporal error, indicating how dissimilar the two sound files are
+        (float): Temporal error, indicating how dissimilar the two sound files are
     '''
 
     distance = 0
     sound_file_length = min(len(sound_file_a),len(sound_file_b))
 
-    segment_size = 50
+    segment_size = 75
     num_segments = 0
-    for i in xrange(sound_file_length - segment_size):
+
+    for i in xrange(0,sound_file_length - segment_size,segment_size):
         segment_a = sound_file_a[i:i+segment_size]
         segment_b = sound_file_b[i:i+segment_size]
 
-        distance += abs(sum(segment_a) - sum(segment_b))
-        num_segments += 1
+        max_a = abs(max(max(segment_a),abs(min(segment_a))))
+        max_b = abs(max(max(segment_b),abs(min(segment_b))))
 
+        # If input segment was quiet but ground truth was not
+        if max_a < 50 and max_b > 50:
+            num_segments += 1
+            total = 0
+            for val in segment_b:
+                total += abs(val)
+            distance += total
+            continue
+
+        # If both segments were relatively silent, IGNORE THEM (no cost)
+        if max_a < 50 and max_b < 50:
+            num_segments += 1
+            continue
+
+        # If input segment was loud but ground truth was not
+        if max_a > 50 and max_b < 50:
+            num_segments += 1
+            total = 0
+            for val in segment_a:
+                total += abs(val)
+            distance += total
+            continue
+
+        # # LOUD SEGMENTS - did we get it?
+        # avg_a = float(sum(segment_a)) / len(segment_a)
+        # avg_b = float(sum(segment_b)) / len(segment_b)
+
+        # distance += abs(avg_a - avg_b)
+
+        # num_segments += 1
 
     return float(distance) / num_segments
 

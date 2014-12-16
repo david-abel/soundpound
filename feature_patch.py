@@ -40,7 +40,7 @@ class FeaturePatch:
         else:
             # MAGNITUDES
             # return self._weighted_avg_direction(features)
-            return self._avg_features(features)
+            return self._sum_features(features)
 
     def _sum_features(self, features):
         summed_feature_patches = []
@@ -59,8 +59,6 @@ class FeaturePatch:
     def _max_features(self, features):
         max_feature_patches = []
         for time_slice in features:
-            print time_slice.values()
-            quit()
             max_feature_patches.append(max(time_slice.values()))
 
         return max_feature_patches
@@ -105,7 +103,8 @@ class FeaturePatch:
             for opt_flow in time_slice.values():
                 magnitude = math.sqrt((opt_flow[0] + opt_flow[1])**2)
                 weighted_sum_dir += magnitude*math.atan2(opt_flow[1], opt_flow[0])
-            max_dirs.append(float(weighted_sum_dir) / len(time_slice.values()))
+            avg_dir = float(weighted_sum_dir) / len(time_slice.values())
+            max_dirs.append(avg_dir)
 
         return max_dirs
 

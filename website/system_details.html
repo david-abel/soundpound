@@ -6,13 +6,14 @@
   <meta charset="utf-8">
   <title>Soundpound</title>
   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+  <link rel="stylesheet" href="misc.css">
   <h1 align="center">Soundpound</h1>
 </head>
 
 <!-- NAVIGATION -->
 <div class="pure-menu pure-menu-open pure-menu-horizontal" align="center">
     <ul>
-        <li><a href="home.html">Home</a></li>
+        <li><a href="home.html">Overview</a></li>
         <li><a href="results.html">Results</a></li>
         <li class="pure-menu-selected"><a href="system_details.html">System Details</a></li>
     </ul>
@@ -20,47 +21,63 @@
 </div>
 
 <!-- BODY -->
-<body align="center">
+<body>
 
-<h4>Introduction</h4>
-
-<p>
-  </p>
-
-<h4>Data Set</h4>
+<h4 align="center">Introduction</h4>
 
 <p>
   </p>
 
-<h4>Related Work</h4>
+<h4 align="center">Data Set</h4>
 
-<p>
+<p>The ENST-Drums data set was kindly provided by Olivier Gillet and Gael Richard. The full data set may be requested from them <a href="http://www.tsi.telecom-paristech.fr/aao/en/2010/02/19/enst-drums-an-extensive-audio-visual-database-for-drum-signals-processing/">here</a>. It includes approximately an hour of footage of three different drummers playing three different (and extremely varied) drum kits - some of the kits include peculiar percussive instruments such as cowbells, and others are equipped with extra toms and cymbals. The drummers are recorded playing each percussiion instrument with a few different sticks (e.g. mallets, brushes, etc.) from two different camera angles. For experimentation, the full dataset was not used due to the complexity of some of the sequences (i.e. fills, phrases).
   </p>
 
-
-<h4>Optical Flow</h4>
-
-<p>
-  </p>
-
-<h4>Feature Selection</h4>
+<h4 align="center">Related Work</h4>
 
 <p>
   </p>
 
 
-<h4>Evaluation</h4>
+<h4 align="center">Representation</h4>
 
-<p>
+<p> The crux of the representation for each video consists of Optical Flow Vectors. Optical flow boils down to computing a dense grid of keypoints for each frame and tracking the movement of those keypoints to the next frame. Thus, for each frame, Optical Flow returns a Vector Field representing how much each keypoint moved from the previous frame. The implementation that I used for this project was the approach introduced by Gunnar Farneback in <a href="http://www.diva-portal.org/smash/get/diva2:273847/FULLTEXT01.pdf">Image Analysis, 2003</a>. For each frame, I performed a pooling operation across the vector field, reducing the representation for each frame down to a single integer value. Frames were then grouped into segments of N consecutive frames (results reported with N=25 and N=5). This allows for the representation to capture changes in movement, such as downward motion followed immediately by abrupt backward motion. This was critical for achieving good results.
   </p>
 
-<h4>Quantitative Results</h4>
+<h4 align="center">Finding Neighbors</h4>
+
+<p>
+I serialized the entire data set of videos in their featurized format. Thus, a single video was stored as several N-frame sequences. For the input video, the same processing was applied (Optical Flow + Pooling). Then, a simple nearest neighbor search for each segment identified the portions of other videos whose motions corresponded well to the given input segment's motion. The resulting sound is simply the stitched together sound of each matched segment.
+</p>
+
+<h4 align="center">Evaluation</h4>
 
 <p>
 </p>
 
-<h4>Conclusion</h4>
+<h4 align="center">Feature Selection</h4>
+
+<p> Using a Dense grid of Optical Flow keypoints as the basis for features, I considered several simplifications that applied some form of pooling across each frame. The different features considered were:
+</p>
+
+  <ul>
+    <li> Average magnitude of Optical Flow vectors
+    <li> Max magnitude of Optical Flow vectors
+    <li> Sum of the magnitudes of Optical Flow vectors
+    <li> Angle of the maximum amplitude optical flow vector
+    <li> Weighted average of Optical Flow angles. (weighted by magnitude).
+  </ul>
+
+  <p>I processed a small subset of the full data into serialized feature representations using each of the above features, and compared the Mean Temporal Error on a held out set of data. This involved computing the inferred sound by running the full Soundpound system and compting the MTE between the ground truth sound for the given video and the audio inferred by Soundpound.
+  </p>
+
+<h4 align="center">Quantitative Results</h4>
+
 <p>
+</p>
+
+<h4 align="center">Conclusion</h4>
+<p> The problem of inferring the correct sound is somewhat unconstrained, and is perhaps not well suited to data driven approaches. Some <a href="results.html">results</a> are encouraging, though I suspect there are pure algorithmic approaches that could out-perform what I have put together here. Additinally, I discovered that there is a noticeable lack of distance metrics for time-series data. Much effort has been dedicated to distance metrics in language (i.e. Edit distance, <a href="http://en.wikipedia.org/wiki/Word_ladder">Lewis Carrol's Word Ladder</a>), as one might expect.
 </p>
 
 </body>

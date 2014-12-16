@@ -13,7 +13,7 @@ import audio_utils
 import namespace
 import utils
 
-def soundpound_pipeline(input_video, stitch_sound=True):
+def soundpound_pipeline(input_video, stitch_sound=True, num_segments_to_load=sys.maxint):
     '''
     Args:
         input_video (str): filename of input video to run system on
@@ -28,7 +28,7 @@ def soundpound_pipeline(input_video, stitch_sound=True):
 
     # Find nearest neighbors
     utils.dprint("Finding best matches...")
-    matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches, input_video)
+    matched_feature_patches = classify.get_nearest_neighbors(input_feature_patches, input_video, num_segments_to_load)
 
     if len(matched_feature_patches) == 0:
         print "No matches found. Quitting."

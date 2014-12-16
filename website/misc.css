@@ -1,0 +1,11 @@
+/* SOME MISC STYLE TO ADD TO THE PURE STYLESHEET */
+
+p{
+  margin-left:5em;
+  margin-right:5em;
+}
+
+ul {
+margin: 0 auto;
+display: table;
+}

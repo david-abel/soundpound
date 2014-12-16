@@ -12,8 +12,8 @@ import dense_optical_flow
 import namespace
 
 
-def get_nearest_neighbors(input_feature_patches, filename=""):
-    test_data = _load_test_set()
+def get_nearest_neighbors(input_feature_patches, filename="", num_segments_to_load=sys.maxint):
+    test_data = _load_test_set(num_segments_to_load)
 
     utils.dprint("Finished loading dataset...")
 
@@ -35,7 +35,7 @@ def get_nearest_neighbors(input_feature_patches, filename=""):
 
     return best_matches
 
-def _nearest_neighbor(src, neighbors, filename_key=""):
+def _nearest_neighbor(src, neighbors, filename_key="empty_string"):
     '''
     Args:
         FeaturePatch: describes a patch from the source video
@@ -53,7 +53,7 @@ def _nearest_neighbor(src, neighbors, filename_key=""):
 
         if filename_key in possible_match.filename:
             # SAME FILE so ignore it
-            print "Ignoring a file!"
+            # utils.dprint("Ignoring a file!")
             continue
 
         cur_dist = distance(src, possible_match)
@@ -75,7 +75,6 @@ def distance(frames_src, frames_target):
         int: the distance between the given FeaturePatch in optical flow space
     '''
 
-    # print len(frames_src.features), len(frames_target.features)
     if type(frames_target) == list:
         utils.dprint("FOUND A LIST IN DISTANCE")
         return sys.float_info.max
@@ -83,14 +82,15 @@ def distance(frames_src, frames_target):
     dist = 0
     for i in range(len(frames_target.features)):
 
-        if namespace.FEATURES_ARE_VECTORS:
-            if type(frames_src.features[i]) != list or type(frames_target.features[i]):
+        if namespace.FEATURES_ARE_VECTORS and not namespace.WEIGHTED_AVG_DIR:
+            # If we stored features as Optical Flow Vector
+
+            if (type(frames_src.features[i]) != list or type(frames_target.features[i])):
+                # Something wonky happened with features.
                 utils.dprint("Odd feature")
                 continue
-            # If we stored features as Vector for optical flow
-            print "SOURCE:", frames_src.features[i]
-            print "TARGET:", frames_target.features[i]
 
+            # Compute distance
             mag_src = math.sqrt((frames_src.features[i][0] + frames_src.features[i][1])**2)
             mag_target = math.sqrt((frames_target.features[i][0] + frames_target.features[i][1])**2)
             dist += abs((mag_src - mag_target))
@@ -100,7 +100,7 @@ def distance(frames_src, frames_target):
     return dist
 
 
-def _load_test_set():
+def _load_test_set(num_segments_to_load=sys.maxint):
     '''
     Returns:
         dict: contains the feature representation for each slice of each video, where key=filename, val=feature dict.
@@ -109,14 +109,24 @@ def _load_test_set():
     test_data_dir = namespace.TEST_DATA_FEAT_DIR
     all_pickle_files = [f for f in listdir(test_data_dir) if isfile(join(test_data_dir,f))]
 
+    if num_segments_to_load < sys.maxint:
+        random.shuffle(all_pickle_files)
+
     # Store each feature dict (represents set of namespace.NUM_FRAMES_PER_SLICE frames) with filename as the key
     all_feature_dicts = {}
+    num_segments_loaded = 0
     for pickle_file_name in all_pickle_files:
+
         if "DS_Store" in pickle_file_name:
             # Ignore silly Mac thing..
             continue
-        all_feature_dicts[pickle_file_name] = utils.open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
 
+        all_feature_dicts[pickle_file_name] = utils.open_feature_obj_from_file(join(test_data_dir,pickle_file_name))
+        
+        num_segments_loaded += 1
+        if num_segments_loaded >= num_segments_to_load:
+            # If we're only loading a subset of the data set.
+            break
     return all_feature_dicts
 
 def main():
@@ -128,19 +138,19 @@ def main():
     source_video = sys.argv[1]
     source_video_feature_patches = dense_optical_flow.get_feature_patches_from_video(source_video)
 
-    print "Finished preprocessing input video..."
+    utils.dprint("Finished preprocessing input video...")
 
     # Load test data from pickled files into FeaturePatch objects
     test_data = _load_test_set()
 
-    print "Finished loading dataset..."
+    utils.dprint("Finished loading dataset...")
 
     best_matches = []
 
     # For each temporal patch of features (FeaturePatch) in the source video, find a nearest neighbor
     for feature_patch in source_video_feature_patches:
         best_matches.append(_nearest_neighbor(feature_patch, test_data.values()))
-        print "Finished another patch"
+        utils.dprint("Finished another patch")
     print "Done."
 
     print "Best matches:",

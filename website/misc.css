@@ -1,11 +1,35 @@
 /* SOME MISC STYLE TO ADD TO THE PURE STYLESHEET */
 
 p{
-  margin-left:5em;
-  margin-right:5em;
+  margin-left:15em;
+  margin-right:15em;
 }
 
 ul {
 margin: 0 auto;
 display: table;
+}
+
+ol {
+margin: 0 auto;
+display: table;
+}
+
+img {
+margin: 0 auto;
+display: table;
+}
+
+/*.indentlist {
+	margin-left: 10%;
+}*/
+
+.container {
+    text-align: center;
+    min-width: 560px;
+    display: table;
+    margin: 0 auto;
+}
+.container .middle-img {
+    margin: 0 auto;
 }

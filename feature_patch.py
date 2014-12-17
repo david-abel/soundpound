@@ -40,7 +40,7 @@ class FeaturePatch:
         else:
             # MAGNITUDES
             # return self._weighted_avg_direction(features)
-            return self._sum_features(features)
+            return self._avg_features(features)
 
     def _sum_features(self, features):
         summed_feature_patches = []

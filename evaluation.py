@@ -1,6 +1,7 @@
 # Python Modules
 from scipy.io.wavfile import read, write
 import argparse
+import sys
 
 # Soundpound modules
 import utils
@@ -20,8 +21,13 @@ def main():
     if args.random:
         namespace.RANDOM_SELECTION = True
     
+    if args.datasetsize:
+        data_set_size = args.datasetsize
+    else:
+        data_set_size = sys.maxint
+
     # Run pipeline with eval video as input
-    result_audio = soundpound.soundpound_pipeline(namespace.EVAL_VID_A, num_segments_to_load=args.datasetsize)
+    result_audio = soundpound.soundpound_pipeline(namespace.EVAL_VID_A, num_segments_to_load=data_set_size)
 
     # Get ground truth sound
     sample_rate, ground_truth_audio = read(namespace.EVAL_AUDIO_A)

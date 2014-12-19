@@ -26,7 +26,7 @@
 <!-- INTRO -->
 <h4 align="center">Introduction</h4>
 
-<p> Soundpound is a data-driven approach to inferring which sounds should be played by an air-drummer. It was completed as the course project for <a href="http://cs.brown.edu/courses/csci2951-b/">CSCI 2951-B in Fall 2014</a>. The system takes as input a video of a person playing the air-drums, and returns as output the same video annotated with drum sounds that are believed to be realistic. The key observation is that small segments of movement of an air drummer ought to appear similar to those of a real drummer.
+<p> Soundpound is a data-driven approach to inferring which sounds should be played by an air-drummer. It was completed as the course project for <a href="http://cs.brown.edu/courses/csci2951-b/">CSCI 2951-B in Fall 2014</a>. The system takes as input a video of a person playing the air-drums, and returns as output the same video annotated with drum sounds that are intended to reflect which drums the input drummer would have hit. The key observation is that small segments of movement of an air drummer ought to appear similar to those of a real drummer.
   </p>
 
 <!-- PIPELINE MAIN STEPS -->
@@ -50,6 +50,7 @@ Soundpound takes around two times longer two run than the length of the input vi
 </p>
 
 <!-- DATA SET -->
+<hr width="20%">
 <h4 align="center">Data Set</h4>
 
 <p>The ENST-Drums data set was kindly provided by Olivier Gillet and Gael Richard. The full data set may be requested from them <a href="http://www.tsi.telecom-paristech.fr/aao/en/2010/02/19/enst-drums-an-extensive-audio-visual-database-for-drum-signals-processing/">here</a>. It includes approximately an hour of footage of three different drummers playing three different (and extremely varied) drum kits - some of the kits include peculiar percussive instruments such as cowbells, and others are equipped with extra toms and cymbals. The drummers are recorded playing each percussiion instrument with a few different sticks (e.g. mallets, brushes, etc.) from two different camera angles. For experimentation, the full dataset was not used due to the complexity of some of the sequences (i.e. fills, phrases). Here are some example images from the dataset:
@@ -57,93 +58,105 @@ Soundpound takes around two times longer two run than the length of the input vi
 
 <!-- IMAGES OF DATASET -->
 <div class="container">
-    <img src="images/drummer1.png" alt="Drummer 1" style="width:120px; float: left; margin-right:3%">
+  <img src="images/drummer1.png" alt="Drummer 1" style="width:120px; float: left; margin-right:3%">
   <img src="images/drummer2.png" alt="Drummer 2" style="width:120px;float: left;margin-right:3%">
   <img src="images/drummer3.png" alt="Drummer 3" style="width:120px;float: left;margin-right:3%">
   <img src="images/drummer4.png" alt="Drummer 4" style="width:120px;float: left;margin-right:3%">
 </div>
 
-<!-- RELATED WORK -->
-<h4 align="center">Related Work</h4>
-
-<p>
-  </p>
-
 <!-- REPRESENTATION -->
+<hr width="20%">
 <h4 align="center">Representation</h4>
 
-<p> The crux of the representation for each video consists of a vector field that results from applying Optical Flow to each pair of frames in the video. Optical flow boils down to computing a dense grid of keypoints for each frame and tracking the movement of those keypoints to the next frame. Thus, each frame is represented as a vector field representing how much each keypoint moved from the previous frame. The implementation that I used was the approach introduced by Gunnar Farneback in <a href="http://www.diva-portal.org/smash/get/diva2:273847/FULLTEXT01.pdf">Image Analysis, 2003</a>. For each frame, I performed a pooling operation across the vector field, reducing the representation for each frame down to a single integer value. Frames were then grouped into segments of N consecutive frames (results reported with N=25). This allows for the representation to capture changes in movement, such as downward motion followed immediately by abrupt backward motion. This was critical for achieving good results (with N=1 the Mean Temporal Error was effectively the same as random).
+<p> The crux of the representation for each video consists of a vector field that results from applying <a href="http://en.wikipedia.org/wiki/Optical_flow">Optical Flow</a> to each pair of consecutive frames in the video. Optical flow boils down to computing a dense grid of keypoints for each frame and tracking the movement of those keypoints to the next frame. Thus, each frame is represented as a vector field indicating how much each keypoint moved from the previous frame. The implementation that I used was based on the approach introduced by Gunnar Farneback in <a href="http://www.diva-portal.org/smash/get/diva2:273847/FULLTEXT01.pdf">Image Analysis, 2003</a>. For each frame, I performed a pooling operation across the vector field, reducing the representation for each frame down to a single integer value. Frames were then grouped into segments of N consecutive frames (results reported with N=25). This allows for the representation to capture brief temporal changes in movement, such as downward motion followed immediately by abrupt backward motion. This was critical for achieving good results (with N=1 the Mean Temporal Error was effectively the same as random).
   </p>
 
 <!-- Pooling -->
+<hr width="20%">
   <h4 align="center">Pooling</h4>
 
 <p> The different pooling functions considered were:
 </p>
 
   <ol>
-    <li style="margin-bottom: 9%"> Average magnitude of Optical Flow vectors:
+  <li style="margin-bottom: 9%"> Average magnitude of Optical Flow vectors:
+    <img src="images/avg_pooling.jpg" alt="Average Pooling" style="width:300px; margin-top: 2%;">
 
-    <img src="images/avg_pooling.jpg" alt="Average Pooling" style="width:400px; margin-top: 2%">
+  <li style="margin-bottom: 9%"> Max magnitude of Optical Flow vectors
+    <img src="images/max_pooling.jpg" alt="Max Pooling" style="width:315px; margin-top: 2%">
 
-    <li style="margin-bottom: 9%"> Max magnitude of Optical Flow vectors
+  <li style="margin-bottom: 9%"> Sum of the magnitudes of Optical Flow vectors
+    <img src="images/sum_pooling.jpg" alt="Sum Pooling" style="width:260px; margin-top: 2%">
 
-  <img src="images/max_pooling.jpg" alt="Max Pooling" style="width:415px; margin-top: 2%">
-
-    <li style="margin-bottom: 9%"> Sum of the magnitudes of Optical Flow vectors
-      
-  <img src="images/sum_pooling.jpg" alt="Sum Pooling" style="width:360px; margin-top: 2%">
-
-    <li style="margin-bottom: 9%"> Angle of the maximum amplitude optical flow vector:
-
-  <img src="images/pool_max_angle_1.jpg" alt="Max Angle Pooling" style="width:295px; margin-top: 2%">
+  <li style="margin-bottom: 9%"> Angle of the maximum amplitude optical flow vector:
+    <img src="images/pool_max_angle_1.jpg" alt="Max Angle Pooling" style="width:210px; margin-top: 2%">
+  
   <p>
     Where:
   </p>
-  <img src="images/pool_max_angle_2.jpg" alt="Max Angle Pooling" style="width:480px; margin-top: 2%">
 
+  <img src="images/pool_max_angle_2.jpg" alt="Max Angle Pooling" style="width:390px; margin-top: 2%">
     <li style="margin-bottom: 9%"> Weighted average of Optical Flow angles. (weighted by magnitude).
 
-<img src="images/weighted_vec_pooling.jpg" alt="Max Angle Pooling" style="width:540px; margin-top: 2%">
+<img src="images/weighted_vec_pooling.jpg" alt="Max Angle Pooling" style="width:440px; margin-top: 2%">
 
   </ol>
 
-  <p>I processed a small subset of the full data into serialized feature representations using each of the above features, and compared the Mean Temporal Error on a held out set of data. This involved computing the inferred sound by running the full Soundpound system and compting the Error between the ground truth sound for the given video and the audio inferred by Soundpound.
-  </p>
-
-
+<!-- EVALUATION -->
+<hr width="20%">
 <h4 align="center">Evaluation</h4>
 
 <p>
-As stated, this problem is fundamentally difficult to quantitatively evaluate. In order to evaluate the system, I rephrased the problem in terms of reidentifying the correct sound for an arbitrary video in the dataset. This allowed me to treat it like a standard machine learning problem, and break off a small chunk of the dataset for use as a test set. Then, using Soundpound, I approximated the correct drumming audio for a given input video and compared it to the ground truth audio. Unfortunately I was unable to find any existing distance metrics that were standard for audio (or sequences of integers, for that matter). I introduce the Mean Temporal Error metric for determining the distance between two sound waves:
+This problem is fundamentally difficult to quantitatively evaluate due to the subjective nature of the quality of the output. To evaluate the system, I rephrased the problem in terms of reidentifying the correct sound for an arbitrary video in the dataset, giving me access to ground-truth audio for the input video. This allowed me to treat the Soundpound pipeline like a standard machine learning problem; I broke off a small chunk of the dataset for use as a test set and approximated the correct drumming audio for a given input video and compared it to the ground truth audio. </p>
+
+<p> Unfortunately I was unable to find any existing distance metrics that were standard for audio (or sequences of integers, for that matter). I introduce the Mean Temporal Error metric for determining the distance between two raw audio files:
 </p>
 
 <img src="images/mte.jpg" alt="Mean Temporal Error" style="width:480px;">
 
-<p> The MTE effectively penalizes cases where the inferred sound incorrectly plays a drum sound, or incorrectly misses a drum sound. The setting of the parameter K is significant, then, as it is sensitive to the volume of the recording. Fortunately for this dataset, it was easy to pick a K (50) that achieved the desired cost function. Using the MTE, I was able to quantitatively evaluate the performance of my system:</p>
+<p> Here, "a_i" and "b_i" represent subsequences of discretized sound data, and "max()" takes the maximum amplitude sampled sound over the segment. The MTE penalizes cases where the inferred sound segment incorrectly plays a drum sound (the first case), or incorrectly misses a drum sound (the second case). The use of the "max()" operator is intended to compute the maximum magnitude sound in the sound segment a_i, or b_i. The setting of the parameter K is significant, then, as it is sensitive to the volume of the recording. Fortunately for this dataset it was easy to pick a K (50) that achieved the desired cost function, as all videos were recorded on the same camera. Using the MTE, I was able to quantitatively evaluate the performance of my system, visualized in the following steps:</p>
 
-<img src="images/evaluation.jpg" alt="Evaluation Framework" style="width:480px;">
+<img src="images/evaluation.jpg" alt="Evaluation Framework" style="width:520px;">
 
-
+<p>
+Using the MTE and the above framework, I was able to do some hyperparameter search as well, which improved performance overall. The main parameters of interest include K (used in the MTE), and N, the number of frames per segment. I ended up using N = 25, as the frame rate of the videos is 25fps, making the segments each 1 second long. With a smaller N, the MTE went up, but qualitatively certain characteristics improved (for instance, I was able to play multiple drum sounds back to back, whereas with N=25, only one sound can be played per second). Lastly, I cleaned the data set by identifying neighbors that were selected frequently that resulted in high MTE. These segments all came from hitting a pedal (i.e. there was no movement whatsoever), or drum "phrases" in which the drummer played several drums at the same time. Thus, this preliminary evaluation stage was critical for improving the system.
+</p>
 
 <!-- NEAREST NEIGHBORS -->
+<hr width="20%">
 <h4 align="center">Finding Neighbors</h4>
 
 <p>
-I serialized the entire data set of videos in their featurized format. That is, I computed the Optical Flow of each video in the dataset, performed a pooling operation on the vector field, and grouped the frames into segments. Each segment was then stored in the dataset as its own entity (i.e. a single video was stored as several N-frame sequences). For the input video, the same processing was applied (Optical Flow + Pooling). Then, a simple nearest neighbor search for each segment identified the portions of other videos whose motions corresponded well to the given input segment's motion. The resulting sound is simply the stitched together sound of each matched segment.
-</p>
+To find a segment's neighbor, I serialized the entire data set of videos in their featurized format. That is, I computed the Optical Flow of each video in the dataset, performed a pooling operation on the vector field, and grouped the frames into segments. Each segment was then stored in the dataset as its own entity (i.e. a single video was stored as several N-frame sequences). For the input video, the same processing was applied (Optical Flow + Pooling). Then, a simple nearest neighbor search for each segment identified the portions of other videos whose motions corresponded well to the given input segment's motion. The resulting sound is simply the stitched together sound of each matched segment. Since each segment of frames was represented as a single number, the nearest neighbor was identified by finding the segment in the dataset that minimized the distance of each frame to the input segment's frames:</p>
 
-
-<h4 align="center">Quantitative Results</h4>
+<img src="images/distance.jpg" alt="Distance" style="width:320px;">
 
 <p>
+Where "a_i" represents the input segment (and "a_ij" represents a single quanta of sound), and "B" represents the full dataset.
+</p>
+
+<hr width="20%">
+<h4 align="center">Quantitative Results</h4>
+
+<p> I conducted a set of experiments on a small held out set of videos from the ENST-Drums dataset. This round of experiments was intended to determine which pooling function achieved the lowest overall MTE. I compared each of their performance to random behavior to give a sense of the quality of the the representation:
 </p>
 
 <img src="images/results_feature_type.jpg" alt="Comparison of Features" style="width:480px;">
+
+<p>
+As you can see, average and sum pooling performed the best during these experiments. Going forward, I chose to use average pooling, as it seemd to performed qualitatively better than sum pooling. Additionally, I conducted a set of experiments on a single video with varied dataset sizes. For experimentation, I used 1 minute of data, 5 minutes, 10 minutes, 30 minutes, and the full dataset. Once again, I compared the performance to random performance to give a sense of how much added data improves performance:
+</p>
+
 <img src="images/results_data_size.jpg" alt="Comparison of Dataset Size" style="width:480px;">
 
+<p>
+  As we expect, more data decreases the average MTE during experimentation. This reflects positively on the MTE as a means of comparing sounds. The <a href="results.html">results</a> page displays the system's qualitative performence in my time experimenting with it. Soundpound commonly makes mistakes still, but in general I found the performance to be good enough to be fun!
+</p>
+
+<!-- CONCLUSION -->
+<hr width="20%">
 <h4 align="center">Conclusion</h4>
-<p> The problem of inferring the correct sound is somewhat unconstrained, and is perhaps not well suited to data driven approaches. Some <a href="results.html">results</a> are encouraging, though I suspect there are pure algorithmic approaches that could out-perform what I have put together here. Additinally, I discovered that there is a noticeable lack of distance metrics for time-series data. Much effort has been dedicated to distance metrics in language (i.e. Edit distance, <a href="http://en.wikipedia.org/wiki/Word_ladder">Lewis Carrol's Word Ladder</a>), as one might expect.
+<p> The problem of inferring the correct sound is somewhat unconstrained, and is perhaps not well suited to data driven approaches. Still, with the use of the MTE I was able to isolate useful pooling functions and parameters that achieved reasonable qualitative performance. During this project I discovered that there is a noticeable lack of distance metrics for sound and time-series data, something I would be interested in following up with in the future. Much effort has been dedicated to distance metrics in language (i.e. Edit distance and related natural language distances, such as <a href="http://en.wikipedia.org/wiki/Word_ladder">Lewis Carrol's Word Ladder</a>), as one might expect. I suspect there is still work to be done here as the MTE introduced is extremely hand-tailored to this particular problem and dataset. Additionally, there are a few changes to the system that could enhance performance that I did not have time to implement. First, one could inject some expert knowledge into the system, such as a prior on the location of movement for informing which movements map to which drum. Another addition that may improve performance is adding a preliminary segmenting step that identifies the regions of each frame that correspond to a person's movement, and specifically, to their arms. This would remove the occasional noise of one's head or body movement contributing (falsely) to the inferred drumming motion of the video. Lastly, doing a full 3D-mapping of the input drummer's arm could lead to dramatic improvements, though this is admittedly non-trivial with just a monocular camera.
 </p>
 
 </body>
